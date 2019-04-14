@@ -85,7 +85,7 @@ app.get('/', (req, res) => {
       }
     };
 
-  res.sendFile('index', options, function() {
+  res.sendFile('index', options, function(err) {
     if (err) {
       next(err);
     }
