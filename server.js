@@ -77,7 +77,7 @@ app.all("*", async (req, res, next) => {
 app.get('/', (req, res, next) => {
   let
     options = {
-      root: __dirname + './dist/',
+      root: __dirname + '/dist/',
       dotfiles: 'deny',
       headers: {
         'x-timestamp': Date.now(),
