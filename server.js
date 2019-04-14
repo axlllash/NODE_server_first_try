@@ -215,7 +215,7 @@ app.post('/api/verifyEmail', (req, res, next) => {
               if (!err) {
                 res.send(JSON.stringify({
                   code: 1,
-                  userName: user.userName
+                  userName: user.userName,
                   userData: {
                     email: user.email,
                     friends: user.friends,
