@@ -5,7 +5,6 @@ const
   session = require('express-session'),
   redis = require('redis'),
   fs = require('fs'),
-  morgan = require('morgan'),
   //配置
   client = redis.createClient({ password: '123456ww' }),
   redisStore = require('connect-redis')(session),
