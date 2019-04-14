@@ -11,7 +11,7 @@ const
   app = express(),
   // 自己的模块
   sendEmail = require('./email'),
-  log = require('./config/log'),
+  log = require('./config/logs'),
   createVerifyCode = require('./util').createVerifyCode;
 
 //一些全局参数
