@@ -59,7 +59,7 @@ class RegisterView extends Component {
           });
         }
       );
-    },
+    }
   } else {
     this.props.showError('未填写完整，无法提交！');
   }

@@ -17,6 +17,8 @@ const loginBeforeSuccessTime = 2000;
 const loginBeforeSuccessShortTime = 0;
 //注册界面提示用户注册成功所需要的时间
 const registerBeforeSuccessTime = 2000;
+//验证邮箱界面提示用户成功所需要的时间
+const verifyEmailSuccessTime = 2000;
 
 //一个配合上面设置的简单公用方法
 const dispatchIfValidPublic = (dispatch, reqId, name) => (action, currentReqId) => {
@@ -215,55 +217,56 @@ export const logoutFail = () => ({
 
 //************************************************************************
 export const verifyEmail = (verifyCode, callback, callbackForError) => (dispatch, getState) => {
-    const verifyEmailReqId = ++REQ_ID.currentVerifyEmailReqId;
+  const verifyEmailReqId = ++REQ_ID.currentVerifyEmailReqId;
 
-    const dispatchIfValid = dispatchIfValidPublic(dispatch, verifyEmailReqId, 'currentVerifyEmailReqId');
+  const dispatchIfValid = dispatchIfValidPublic(dispatch, verifyEmailReqId, 'currentVerifyEmailReqId');
 
-    //开始dispatch注销开始的action
-    dispatchIfValid(verifyEmailStart());
+  //开始dispatch注销开始的action
+  dispatchIfValid(verifyEmailStart());
 
-    fetch(url.verifyEmail)
-      .then(res => {
-        if (res.ok) {
-          return res.json()
-        } else {
-          return Promise.reject('Something wrong when verify email.');
-        }
-      })
-      .then(data => {
-          if (Number(data.code) === 1) {
-            dispatchIfValid(verifyEmailBeforeSuccess());
-            setTimeout(() => {
-              dispatchIfValid(verifyEmailSuccess());
-              if (typeof callback === 'function') {
-                callback({
-                  userName: data.userName,
-                  userData: data.userData
-                });
-              }
-            }, (shortTimeBool ? loginBeforeSuccessShortTime : loginBeforeSuccessTime));
-          })
-        .catch(error => {
-          console.log(error);
-          if (typeof callbackForError === 'function') {
-            callbackForError(error);
-          }
-          dispatchIfValid(verifyEmailFail());
-        })
+  fetch(url.verifyEmail)
+    .then(res => {
+      if (res.ok) {
+        return res.json()
+      } else {
+        return Promise.reject('Something wrong when verify email.');
       }
-
-    export const verifyEmailStart = () => ({
-      type: actionTypes.USER_VERIFY_EMAIL_START,
+    })
+    .then(data => {
+      if (Number(data.code) === 1) {
+        dispatchIfValid(verifyEmailBeforeSuccess());
+        setTimeout(() => {
+          dispatchIfValid(verifyEmailSuccess());
+          if (typeof callback === 'function') {
+            callback({
+              userName: data.userName,
+              userData: data.userData
+            });
+          }
+        }, verifyEmailSuccessTime);
+      }
+    })
+    .catch(error => {
+      console.log(error);
+      if (typeof callbackForError === 'function') {
+        callbackForError(error);
+      }
+      dispatchIfValid(verifyEmailFail());
     });
+}
 
-    export const verifyEmailBeforeSuccess = () => ({
-      type: actionTypes.USER_VERIFY_EMAIL_BEFORE_SUCCESS,
-    });
+export const verifyEmailStart = () => ({
+  type: actionTypes.USER_VERIFY_EMAIL_START,
+});
 
-    export const verifyEmailSuccess = () => ({
-      type: actionTypes.USER_VERIFY_EMAIL_SUCCESS,
-    });
+export const verifyEmailBeforeSuccess = () => ({
+  type: actionTypes.USER_VERIFY_EMAIL_BEFORE_SUCCESS,
+});
 
-    export const verifyEmailFail = () => ({
-      type: actionTypes.USER_VERIFY_EMAIL_FAIL,
-    });
+export const verifyEmailSuccess = () => ({
+  type: actionTypes.USER_VERIFY_EMAIL_SUCCESS,
+});
+
+export const verifyEmailFail = () => ({
+  type: actionTypes.USER_VERIFY_EMAIL_FAIL,
+});

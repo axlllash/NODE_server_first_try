@@ -35439,6 +35439,11 @@ var USER_REGISTER_FAIL = exports.USER_REGISTER_FAIL = "USER/REGISTER/FAIL";
 var USER_LOGOUT_START = exports.USER_LOGOUT_START = "USER/LOGOUT/START";
 var USER_LOGOUT_SUCCESS = exports.USER_LOGOUT_SUCCESS = "USER/LOGOUT/SUCCESS";
 var USER_LOGOUT_FAIL = exports.USER_LOGOUT_FAIL = "USER/LOGOUT/FAIL";
+//关于验证邮箱的actionTypes
+var USER_VERIFY_EMAIL_START = exports.USER_VERIFY_EMAIL_START = "USER/VERIFY/EMAIL/START";
+var USER_VERIFY_EMAIL_BEFORE_SUCCESS = exports.USER_VERIFY_EMAIL_BEFORE_SUCCESS = "USER/VERIFY/EMAIL/BEFORE/SUCCESS";
+var USER_VERIFY_EMAIL_SUCCESS = exports.USER_VERIFY_EMAIL_SUCCESS = "USER/VERIFY/EMAIL/SUCCESS";;
+var USER_VERIFY_EMAIL_FAIL = exports.USER_VERIFY_EMAIL_FAIL = "USER/VERIFY/EMAIL/FAIL";
 
 /***/ }),
 
@@ -35455,7 +35460,7 @@ var USER_LOGOUT_FAIL = exports.USER_LOGOUT_FAIL = "USER/LOGOUT/FAIL";
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.logoutFail = exports.logoutSuccess = exports.logoutStart = exports.logout = exports.registerFail = exports.registerSuccess = exports.registerBeforeSuccess = exports.registerStart = exports.register = exports.loginFail = exports.loginBeforeSuccess = exports.loginSuccess = exports.loginStart = exports.login = undefined;
+exports.verifyEmailFail = exports.verifyEmailSuccess = exports.verifyEmailBeforeSuccess = exports.verifyEmailStart = exports.verifyEmail = exports.logoutFail = exports.logoutSuccess = exports.logoutStart = exports.logout = exports.registerFail = exports.registerSuccess = exports.registerBeforeSuccess = exports.registerStart = exports.register = exports.loginFail = exports.loginBeforeSuccess = exports.loginSuccess = exports.loginStart = exports.login = undefined;
 
 var _promise = __webpack_require__(/*! babel-runtime/core-js/promise */ "./node_modules/babel-runtime/core-js/promise.js");
 
@@ -35480,7 +35485,8 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 var REQ_ID = {
   currentLoginReqId: 0,
   currentRegisterReqId: 0,
-  currentLogoutReqId: 0
+  currentLogoutReqId: 0,
+  currentVerifyEmailReqId: 0
 
   //登录界面提示用户登录成功所需要的时间
 };var loginBeforeSuccessTime = 2000;
@@ -35488,6 +35494,8 @@ var REQ_ID = {
 var loginBeforeSuccessShortTime = 0;
 //注册界面提示用户注册成功所需要的时间
 var registerBeforeSuccessTime = 2000;
+//验证邮箱界面提示用户成功所需要的时间
+var verifyEmailSuccessTime = 2000;
 
 //一个配合上面设置的简单公用方法
 var dispatchIfValidPublic = function dispatchIfValidPublic(dispatch, reqId, name) {
@@ -35578,8 +35586,15 @@ var loginFail = exports.loginFail = function loginFail(error) {
 
 //******************************************************************
 
-var register = exports.register = function register(userName, password1, password2, callback, callbackForError) {
+var register = exports.register = function register(args, callback, callbackForError) {
   return function (dispatch, getState) {
+    var userName = args.userName,
+        password1 = args.password1,
+        password2 = args.password2,
+        email = args.email,
+        avatar = args.avatar,
+        customSettings = args.customSettings;
+
     var registerReqId = ++REQ_ID.currentRegisterReqId;
 
     var dispatchIfValid = dispatchIfValidPublic(dispatch, registerReqId, 'currentRegisterReqId');
@@ -35592,7 +35607,7 @@ var register = exports.register = function register(userName, password1, passwor
       headers: {
         'Content-Type': 'application/json'
       },
-      body: (0, _stringify2.default)({ userName: userName, password1: password1, password2: password2 })
+      body: (0, _stringify2.default)({ userName: userName, password1: password1, password2: password2, email: email, avatar: avatar, customSettings: customSettings })
     }).then(function (res) {
       if (res.ok) {
         return res.json();
@@ -35613,7 +35628,7 @@ var register = exports.register = function register(userName, password1, passwor
     }).catch(function (error) {
       console.log(error);
       if (typeof callbackForError === 'function') {
-        callbackForError();
+        callbackForError(error);
       }
       dispatchIfValid(registerFail());
     });
@@ -35663,7 +35678,7 @@ var logout = exports.logout = function logout(callback, callbackForError) {
       }
     }).then(function (data) {
       if (Number(data.code) === 1) {
-        dispatchIfValid(logoutSuccess());
+        dispatchIfValid(verifyEmailSuccess());
         if (typeof callback === 'function') {
           callback();
         }
@@ -35693,6 +35708,69 @@ var logoutSuccess = exports.logoutSuccess = function logoutSuccess() {
 var logoutFail = exports.logoutFail = function logoutFail() {
   return {
     type: actionTypes.USER_LOGOUT_FAIL
+  };
+};
+
+//************************************************************************
+var verifyEmail = exports.verifyEmail = function verifyEmail(verifyCode, callback, callbackForError) {
+  return function (dispatch, getState) {
+    var verifyEmailReqId = ++REQ_ID.currentVerifyEmailReqId;
+
+    var dispatchIfValid = dispatchIfValidPublic(dispatch, verifyEmailReqId, 'currentVerifyEmailReqId');
+
+    //开始dispatch注销开始的action
+    dispatchIfValid(verifyEmailStart());
+
+    fetch(_constants.url.verifyEmail).then(function (res) {
+      if (res.ok) {
+        return res.json();
+      } else {
+        return _promise2.default.reject('Something wrong when verify email.');
+      }
+    }).then(function (data) {
+      if (Number(data.code) === 1) {
+        dispatchIfValid(verifyEmailBeforeSuccess());
+        setTimeout(function () {
+          dispatchIfValid(verifyEmailSuccess());
+          if (typeof callback === 'function') {
+            callback({
+              userName: data.userName,
+              userData: data.userData
+            });
+          }
+        }, verifyEmailSuccessTime);
+      }
+    }).catch(function (error) {
+      console.log(error);
+      if (typeof callbackForError === 'function') {
+        callbackForError(error);
+      }
+      dispatchIfValid(verifyEmailFail());
+    });
+  };
+};
+
+var verifyEmailStart = exports.verifyEmailStart = function verifyEmailStart() {
+  return {
+    type: actionTypes.USER_VERIFY_EMAIL_START
+  };
+};
+
+var verifyEmailBeforeSuccess = exports.verifyEmailBeforeSuccess = function verifyEmailBeforeSuccess() {
+  return {
+    type: actionTypes.USER_VERIFY_EMAIL_BEFORE_SUCCESS
+  };
+};
+
+var verifyEmailSuccess = exports.verifyEmailSuccess = function verifyEmailSuccess() {
+  return {
+    type: actionTypes.USER_VERIFY_EMAIL_SUCCESS
+  };
+};
+
+var verifyEmailFail = exports.verifyEmailFail = function verifyEmailFail() {
+  return {
+    type: actionTypes.USER_VERIFY_EMAIL_FAIL
   };
 };
 
@@ -36118,6 +36196,17 @@ exports.default = _container2.default;
 
 /***/ }),
 
+/***/ "./src/user/components/register/components/verifyEmailView.js":
+/*!********************************************************************!*\
+  !*** ./src/user/components/register/components/verifyEmailView.js ***!
+  \********************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+throw new Error("Module build failed (from ./node_modules/babel-loader/lib/index.js):\nSyntaxError: C:/Users/Axl/Desktop/node_try/web/src/user/components/register/components/verifyEmailView.js: Unexpected token (63:9)\n\n\u001b[0m \u001b[90m 61 | \u001b[39m      )\u001b[33m;\u001b[39m\n \u001b[90m 62 | \u001b[39m    }\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 63 | \u001b[39m  } \u001b[36melse\u001b[39m {\n \u001b[90m    | \u001b[39m         \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 64 | \u001b[39m    \u001b[36mthis\u001b[39m\u001b[33m.\u001b[39mprops\u001b[33m.\u001b[39mshowError(\u001b[32m'未填写完整，无法提交！'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 65 | \u001b[39m  }\n \u001b[90m 66 | \u001b[39m}\u001b[0m\n");
+
+/***/ }),
+
 /***/ "./src/user/components/register/container.js":
 /*!***************************************************!*\
   !*** ./src/user/components/register/container.js ***!
@@ -36132,13 +36221,9 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _defineProperty2 = __webpack_require__(/*! babel-runtime/helpers/defineProperty */ "./node_modules/babel-runtime/helpers/defineProperty.js");
+var _extends2 = __webpack_require__(/*! babel-runtime/helpers/extends */ "./node_modules/babel-runtime/helpers/extends.js");
 
-var _defineProperty3 = _interopRequireDefault(_defineProperty2);
-
-var _extends3 = __webpack_require__(/*! babel-runtime/helpers/extends */ "./node_modules/babel-runtime/helpers/extends.js");
-
-var _extends4 = _interopRequireDefault(_extends3);
+var _extends3 = _interopRequireDefault(_extends2);
 
 var _getPrototypeOf = __webpack_require__(/*! babel-runtime/core-js/object/get-prototype-of */ "./node_modules/babel-runtime/core-js/object/get-prototype-of.js");
 
@@ -36170,13 +36255,15 @@ var _header = __webpack_require__(/*! ../../../shell/components/header */ "./src
 
 var _util = __webpack_require__(/*! ../../../util */ "./src/util/index.js");
 
-var _constants = __webpack_require__(/*! ../../constants */ "./src/user/constants.js");
-
-var status = _interopRequireWildcard(_constants);
-
 var _actions = __webpack_require__(/*! ../../actions */ "./src/user/actions.js");
 
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+var _reigsterView = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module './components/reigsterView'"); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
+
+var _reigsterView2 = _interopRequireDefault(_reigsterView);
+
+var _verifyEmailView = __webpack_require__(/*! ./components/verifyEmailView */ "./src/user/components/register/components/verifyEmailView.js");
+
+var _verifyEmailView2 = _interopRequireDefault(_verifyEmailView);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -36189,85 +36276,28 @@ var Register = function (_Component) {
     var _this = (0, _possibleConstructorReturn3.default)(this, (Register.__proto__ || (0, _getPrototypeOf2.default)(Register)).call(this, props));
 
     _this.state = {
-      userName: '',
-      password1: '',
-      password2: '',
-      registerButtonEnable: true,
-      error: '',
-      //暂时只需要一个视图，所以这个也没有用到
-      registerStatus: ''
+      //现在需要两个试图了，一个是注册视图，第二个视图为验证邮箱的视图,如果是第一个视图则为布尔值true，第二个则为布尔值false
+      registerViewStatus: '',
+      firstViewData: ''
     };
-    _this.handleChange = _this.handleChange.bind(_this);
-    _this.handleSubmit = _this.handleSubmit.bind(_this);
-    _this.handleBlur = _this.handleBlur.bind(_this);
-    _this.showError = _util.showError.bind(_this);
+    _this.toggleView = _this.toggleView.bind(_this);
+    _this.logViewData = _this.logViewData.bind(_this);
     return _this;
   }
 
   (0, _createClass3.default)(Register, [{
-    key: 'handleSubmit',
-    value: function handleSubmit(event) {
-      var _this2 = this;
-
-      event.preventDefault();
-      if (this.state.userName && this.state.password1 && this.state.password2 && this.state.password1 === this.state.password2 && this.state.registerButtonEnable) {
-        //将按钮暂时设为不可点击
-        this.setState((0, _extends4.default)({}, this.state, {
-          registerButtonEnable: false
-        }));
-        this.props.register(this.state.userName, this.state.password1, this.state.password2, function () {
-          _this2.props.changeToNoneViewStatus();
-          //如果注册成功，则直接登录
-          _this2.props.login(_this2.state.userName, _this2.state.password1, true);
-        }, function (error) {
-          _this2.showError(error);
-          //恢复点击
-          _this2.setState((0, _extends4.default)({}, _this2.state, {
-            registerButtonEnable: true
-          }));
-        });
-      } else {
-        this.showError('未填写完整，无法提交！');
-      }
+    key: 'toggleView',
+    value: function toggleView() {
+      this.setState((0, _extends3.default)({}, this.state, {
+        registerViewStatus: !this.state.registerViewStatus
+      }));
     }
   }, {
-    key: 'handleChange',
-    value: function handleChange(event) {
-      this.setState((0, _extends4.default)({}, this.state, (0, _defineProperty3.default)({}, event.target.name, event.target.value)));
-    }
-  }, {
-    key: 'handleBlur',
-    value: function handleBlur(event) {
-      var error = '',
-          name = event.target.name;
-      switch (name) {
-        case 'userName':
-          {
-            if (!this.state.userName) {
-              error = '用户名不能为空。';
-            }
-            break;
-          }
-        case 'password1':
-          {
-            if (!this.state.password1) {
-              error = '第一次输入的密码不能为空。';
-            }
-            break;
-          }
-        case 'password2':
-          {
-            if (!this.state.password2) {
-              error = '第二次输入的密码不能为空。';
-            } else if (this.state.password1 !== this.state.password2) {
-              error = '两次密码不一致';
-            }
-            break;
-          }
-        default:
-          break;
-      }
-      this.showError(error);
+    key: 'logViewData',
+    value: function logViewData(name, data) {
+      this.setState((0, _extends3.default)({}, state, {
+        firstViewData: data
+      }));
     }
   }, {
     key: 'render',
@@ -36290,63 +36320,16 @@ var Register = function (_Component) {
             'x'
           )
         ),
-        _react2.default.createElement(
-          'div',
-          { className: 'viewContent' },
-          _react2.default.createElement(
-            'form',
-            { onSubmit: this.handleSubmit },
-            _react2.default.createElement(
-              'label',
-              { htmlFor: 'registerUserName' },
-              '\u7528\u6237\u540D'
-            ),
-            _react2.default.createElement('input', {
-              type: 'text',
-              id: 'registerUserName',
-              name: 'userName',
-              onChange: this.handleChange,
-              onBlur: this.handleBlur,
-              value: this.state.userName
-            }),
-            _react2.default.createElement(
-              'label',
-              { htmlFor: 'registerPassword1' },
-              '\u8F93\u5165\u5BC6\u7801'
-            ),
-            _react2.default.createElement('input', {
-              type: 'password',
-              id: 'registerPassword1',
-              name: 'password1',
-              onChange: this.handleChange,
-              onBlur: this.handleBlur,
-              value: this.state.password1
-            }),
-            _react2.default.createElement(
-              'label',
-              { htmlFor: 'registerPassword1' },
-              '\u8BF7\u518D\u6B21\u8F93\u5165\u5BC6\u7801'
-            ),
-            _react2.default.createElement('input', {
-              type: 'password',
-              id: 'registerPassword2',
-              name: 'password2',
-              onChange: this.handleChange,
-              onBlur: this.handleBlur,
-              value: this.state.password2
-            }),
-            _react2.default.createElement('input', {
-              type: 'submit',
-              id: 'registerButton',
-              value: this.props.registerStatus === status.REGISTER_STATUS_BEFORE_SUCCESS ? '注册成功' : 'Sign Up'
-            })
-          ),
-          _react2.default.createElement(
-            'div',
-            { className: 'errorZone' },
-            this.state.error
-          )
-        )
+        registerViewStatus ? _react2.default.createElement(_reigsterView2.default, {
+          register: this.props.register,
+          registerStatus: this.props.registerStatus,
+          toggleView: this.toggleView,
+          logViewData: this.logViewData
+        }) : _react2.default.createElement(_verifyEmailView2.default, {
+          firstViewData: this.state.firstViewData,
+          changeToNoneViewStatus: this.props.changeToNoneViewStatus,
+          login: this.porps.login
+        })
       );
     }
   }]);
@@ -36359,7 +36342,6 @@ var mapStateToProps = function mapStateToProps(state) {
   };
 };
 var mapDispatchToProps = {
-  changeToNoneViewStatus: _header.actionCreators.changeToNoneViewStatus,
   register: _actions.register,
   login: _actions.login
 };
@@ -36424,6 +36406,11 @@ var REGISTER_STATUS_START = exports.REGISTER_STATUS_START = "REGISTER/STATUS/STA
 var REGISTER_STATUS_BEFORE_SUCCESS = exports.REGISTER_STATUS_BEFORE_SUCCESS = "REGISTER/STATUS/BEFORE/SUCCESS";
 var REGISTER_STATUS_SUCCESS = exports.REGISTER_STATUS_SUCCESS = "REGISTER/STATUS/SUCCESS";
 var REGISTER_STATUS_FAIL = exports.REGISTER_STATUS_FAIL = "REGISTER/STATUS/FAIL";
+//定义verifyEmail的状态
+var VERIFY_EMAIL_STATUS_START = exports.VERIFY_EMAIL_STATUS_START = "VERIFY/EMAIL/STATUS/START";
+var VERIFY_EMAIL_STATUS_BEFORE_SUCCESS = exports.VERIFY_EMAIL_STATUS_BEFORE_SUCCESS = "VERIFY/EMAIL/STATUS/BEFORE/SUCCESS";
+var VERIFY_EMAIL_STATUS_SUCCESS = exports.VERIFY_EMAIL_STATUS_SUCCESS = "VERIFY/EMAIL/STATUS/SUCCESS";
+var VERIFY_EMAIL_STATUS_FAIL = exports.VERIFY_EMAIL_STATUS_FAIL = "VERIFY/EMAIL/STATUS/FAIL";
 
 /***/ }),
 
@@ -36551,9 +36538,10 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 var initialState = {
   userName: '',
   userData: '',
-  loginStatus: status.LOGIN_STATUS_NOT_START,
-  registerStatus: false,
-  logoutStatus: false
+  loginStatus: '',
+  registerStatus: '',
+  logoutStatus: '',
+  verifyEmailStatus: ''
 };
 
 exports.default = function () {
@@ -36561,6 +36549,35 @@ exports.default = function () {
   var action = arguments[1];
 
   switch (action.type) {
+    case actionTypes.USER_VERIFY_EMAIL_START:
+      {
+        return (0, _extends3.default)({}, state, {
+          verifyEmailStatus: status.VERIFY_EMAIL_STATUS_START
+        });
+      }
+    case actionTypes.USER_VERIFY_EMAIL_SUCCESS:
+      {
+        return (0, _extends3.default)({}, state, {
+          userName: action.payload.userName,
+          userData: action.payload.userData,
+          verifyEmailStatus: status.VERIFY_EMAIL_STATUS_SUCCESS,
+          loginStatus: '',
+          registerStatus: '',
+          logoutStatus: ''
+        });
+      }
+    case actionTypes.USER_VERIFY_EMAIL_BEFORE_SUCCESS:
+      {
+        return (0, _extends3.default)({}, state, {
+          verifyEmailStatus: status.VERIFY_EMAIL_STATUS_BEFORE_SUCCESS
+        });
+      }
+    case actionTypes.USER_VERIFY_EMAIL_FAIL:
+      {
+        return (0, _extends3.default)({}, state, {
+          verifyEmailStatus: status.VERIFY_EMAIL_STATUS_FAIL
+        });
+      }
     case actionTypes.USER_LOGIN_START:
       {
         return (0, _extends3.default)({}, state, {
@@ -36574,7 +36591,8 @@ exports.default = function () {
           userData: action.payload.userData,
           loginStatus: status.LOGIN_STATUS_SUCCESS,
           registerStatus: '',
-          logoutStatus: ''
+          logoutStatus: '',
+          verifyEmailStatus: ''
         });
       }
     case actionTypes.USER_LOGIN_BEFORE_SUCCESS:
@@ -36605,7 +36623,10 @@ exports.default = function () {
       {
         {
           return (0, _extends3.default)({}, state, {
-            registerStatus: status.REGISTER_STATUS_SUCCESS
+            registerStatus: status.REGISTER_STATUS_SUCCESS,
+            loginStatus: '',
+            logoutStatus: '',
+            verifyEmailStatus: ''
           });
         }
       }
@@ -36630,14 +36651,14 @@ exports.default = function () {
           userData: '',
           logoutStatus: status.LOGOUT_STATUS_SUCCESS,
           loginStatus: '',
-          registerStatus: ''
+          registerStatus: '',
+          verifyEmailStatus: ''
         });
       }
     case actionTypes.USER_LOGOUT_FAIL:
       {
         return (0, _extends3.default)({}, state, {
-          logoutStatus: status.LOGOUT_STATUS_FAIL,
-          logoutStatusError: action.payload.error
+          logoutStatus: status.LOGOUT_STATUS_FAIL
         });
       }
     default:
