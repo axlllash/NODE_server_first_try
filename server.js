@@ -172,7 +172,8 @@ app.get('/api/register', (req, res, next) => {
         'friends', '',
         'avatar', '',
         'customSettings', '',
-        'verifyCode', verifyCode(err) => {
+        'verifyCode', verifyCode,
+        (err) => {
           if (!err) {
             res.send(JSON.stringify({ code: 1 }));
           }
