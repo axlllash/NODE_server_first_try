@@ -5,13 +5,47 @@ import * as status from './constants';
 const initialState = {
   userName: '',
   userData: '',
-  loginStatus: status.LOGIN_STATUS_NOT_START,
-  registerStatus: false,
-  logoutStatus:false
+  loginStatus: '',
+  registerStatus: '',
+  logoutStatus:'',
+  verifyEmailStatus:''
 };
 
 export default (state = initialState, action) => {
   switch (action.type) {
+    case actionTypes.USER_VERIFY_EMAIL_START:
+      {
+        return {
+          ...state,
+          verifyEmailStatus: status.VERIFY_EMAIL_STATUS_START,
+        }
+      }
+    case actionTypes.USER_VERIFY_EMAIL_SUCCESS:
+      {
+        return {
+          ...state,
+          userName: action.payload.userName,
+          userData: action.payload.userData,
+          verifyEmailStatus: status.VERIFY_EMAIL_STATUS_SUCCESS,
+          loginStatus:'',
+          registerStatus:'',
+          logoutStatus:''
+        }
+      }
+    case actionTypes.USER_VERIFY_EMAIL_BEFORE_SUCCESS:
+      {
+        return {
+          ...state,
+          verifyEmailStatus:status.VERIFY_EMAIL_STATUS_BEFORE_SUCCESS,
+        }
+      }
+    case actionTypes.USER_VERIFY_EMAIL_FAIL:
+      {
+        return {
+          ...state,
+          verifyEmailStatus:status.VERIFY_EMAIL_STATUS_FAIL,
+        }
+      }
     case actionTypes.USER_LOGIN_START:
       {
         return {
@@ -27,7 +61,8 @@ export default (state = initialState, action) => {
           userData: action.payload.userData,
           loginStatus: status.LOGIN_STATUS_SUCCESS,
           registerStatus:'',
-          logoutStatus:''
+          logoutStatus:'',
+          verifyEmailStatus:''
         }
       }
     case actionTypes.USER_LOGIN_BEFORE_SUCCESS:
@@ -62,7 +97,10 @@ export default (state = initialState, action) => {
       {
         return {
           ...state,
-          registerStatus:status.REGISTER_STATUS_SUCCESS
+          registerStatus:status.REGISTER_STATUS_SUCCESS,
+          loginStatus:'',
+          logoutStatus:'',
+          verifyEmailStatus:''
         }
       }
     }
@@ -89,7 +127,8 @@ export default (state = initialState, action) => {
           userData:'',
           logoutStatus:status.LOGOUT_STATUS_SUCCESS,
           loginStatus:'',
-          registerStatus:''
+          registerStatus:'',
+          verifyEmailStatus:''
         }
       }
     case actionTypes.USER_LOGOUT_FAIL:
@@ -97,7 +136,6 @@ export default (state = initialState, action) => {
         return {
           ...state,
           logoutStatus:status.LOGOUT_STATUS_FAIL,
-          logoutStatusError:action.payload.error
         }
       }
     default:

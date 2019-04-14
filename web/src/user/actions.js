@@ -7,7 +7,8 @@ import * as actionTypes from './actionTypes';
 const REQ_ID = {
   currentLoginReqId: 0,
   currentRegisterReqId: 0,
-  currentLogoutReqId: 0
+  currentLogoutReqId: 0,
+  currentVerifyEmailReqId: 0
 }
 
 //登录界面提示用户登录成功所需要的时间
@@ -97,8 +98,16 @@ export const loginFail = (error) => ({
 
 //******************************************************************
 
-export const register = (userName, password1, password2, callback, callbackForError) =>
+export const register = (args, callback, callbackForError) =>
   (dispatch, getState) => {
+    let
+      userName = args.userName,
+      password1 = args.password1,
+      password2 = args.password2,
+      email = args.email,
+      avatar = args.avatar,
+      customSettings = args.customSettings;
+
     const registerReqId = ++REQ_ID.currentRegisterReqId;
 
     const dispatchIfValid = dispatchIfValidPublic(dispatch, registerReqId, 'currentRegisterReqId');
@@ -111,7 +120,7 @@ export const register = (userName, password1, password2, callback, callbackForEr
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ userName, password1, password2 })
+        body: JSON.stringify({ userName, password1, password2, email, avatar, customSettings })
       })
       .then(res => {
         if (res.ok) {
@@ -135,7 +144,7 @@ export const register = (userName, password1, password2, callback, callbackForEr
       .catch(error => {
         console.log(error);
         if (typeof callbackForError === 'function') {
-          callbackForError();
+          callbackForError(error);
         }
         dispatchIfValid(registerFail());
       });
@@ -177,7 +186,7 @@ export const logout = (callback, callbackForError) => (dispatch, getState) => {
     })
     .then(data => {
       if (Number(data.code) === 1) {
-        dispatchIfValid(logoutSuccess());
+        dispatchIfValid(verifyEmailSuccess());
         if (typeof callback === 'function') {
           callback();
         }
@@ -203,3 +212,58 @@ export const logoutSuccess = () => ({
 export const logoutFail = () => ({
   type: actionTypes.USER_LOGOUT_FAIL,
 });
+
+//************************************************************************
+export const verifyEmail = (verifyCode, callback, callbackForError) => (dispatch, getState) => {
+    const verifyEmailReqId = ++REQ_ID.currentVerifyEmailReqId;
+
+    const dispatchIfValid = dispatchIfValidPublic(dispatch, verifyEmailReqId, 'currentVerifyEmailReqId');
+
+    //开始dispatch注销开始的action
+    dispatchIfValid(verifyEmailStart());
+
+    fetch(url.verifyEmail)
+      .then(res => {
+        if (res.ok) {
+          return res.json()
+        } else {
+          return Promise.reject('Something wrong when verify email.');
+        }
+      })
+      .then(data => {
+          if (Number(data.code) === 1) {
+            dispatchIfValid(verifyEmailBeforeSuccess());
+            setTimeout(() => {
+              dispatchIfValid(verifyEmailSuccess());
+              if (typeof callback === 'function') {
+                callback({
+                  userName: data.userName,
+                  userData: data.userData
+                });
+              }
+            }, (shortTimeBool ? loginBeforeSuccessShortTime : loginBeforeSuccessTime));
+          })
+        .catch(error => {
+          console.log(error);
+          if (typeof callbackForError === 'function') {
+            callbackForError(error);
+          }
+          dispatchIfValid(verifyEmailFail());
+        })
+      }
+
+    export const verifyEmailStart = () => ({
+      type: actionTypes.USER_VERIFY_EMAIL_START,
+    });
+
+    export const verifyEmailBeforeSuccess = () => ({
+      type: actionTypes.USER_VERIFY_EMAIL_BEFORE_SUCCESS,
+    });
+
+    export const verifyEmailSuccess = () => ({
+      type: actionTypes.USER_VERIFY_EMAIL_SUCCESS,
+    });
+
+    export const verifyEmailFail = () => ({
+      type: actionTypes.USER_VERIFY_EMAIL_FAIL,
+    });

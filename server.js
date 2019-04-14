@@ -135,7 +135,7 @@ app.get('/api/logout', (req, res, next) => {
 });
 
 //先注册，再验证邮箱
-app.get('/api/register', (req, res, next) => {
+app.post('/api/register', (req, res, next) => {
   let
     userName = req.body.userName,
     password1 = req.body.password1,
@@ -158,6 +158,8 @@ app.get('/api/register', (req, res, next) => {
     if (userName) {
       res.send(JSON.stringify({ code: 4 }));
     } else {
+      //服务器端暂存userName
+      req.session.tempUserName = userName;
       //发送邮件
       verifyCode = createVerifyCode();
       sendEmail(email, verifyCode);
@@ -183,27 +185,27 @@ app.get('/api/register', (req, res, next) => {
   });
 });
 
-//注册（但这里要多加一个验证邮箱的api）
+//这里验证邮箱
 app.post('/api/verifyEmail', (req, res, next) => {
-  if (!req.body.verifyCode || !req.body.userName) {
+  if (!req.body.verifyCode || !req.session.tempUserName) {
     res.send(JSON.stringify({ code: 3 }));
   }
 
-  client.hgetall(`userNotVerify:${req.body.userName}`, (err, user) => {
+  client.hgetall(`userNotVerify:${req.session.tempUserName}`, (err, user) => {
     if (err) {
       next(err);
     } else {
       //排除非法的直接向该api注册已有账号
-      client.hget(`user:${req.body.userName}`, 'userName', (err, userName) => {
+      client.hget(`user:${req.session.tempUserName}`, 'userName', (err, userName) => {
         if (err) {
           next(err);
         } else if (userName) {
           res.send(JSON.string({ code: 4 }));
         } else if (req.body.verifyCode === verifyCode) {
           //到这里即已经验证通过
-          client.del(`userNotVerify:${req.body.userName}`);
+          client.del(`userNotVerify:${req.session.tempUserName}`);
 
-          client.hmset(`user:${req.body.userName}`,
+          client.hmset(`user:${req.session.tempUserName}`,
             'userName', user.userName,
             'password', user.password,
             'email', user.email,
@@ -212,21 +214,15 @@ app.post('/api/verifyEmail', (req, res, next) => {
             'customSettings', user.customSettings,
             (err) => {
               if (!err) {
-                res.send(JSON.stringify({
-                  code: 1,
-                  userName: user.userName,
-                  userData: {
-                    email: user.email,
-                    friends: user.friends,
-                    avatar: user.avatar,
-                    customSettings: user.customSettings
-                  }
-                }));
+                res.send(JSON.stringify({ code: 1 }));
               } else {
                 next(err);
               }
             }
           );
+
+          //清空req.session.tempName
+          req.session.tempName = '';
         }
       })
     }
