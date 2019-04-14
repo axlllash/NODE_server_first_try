@@ -359,9 +359,7 @@ app.put('/api/blog', (req, res, next) => {
       } else {
         next(err);
       }
-    } else if (err) {
-      next(err);
-    })
+    );
   }
 });
 
