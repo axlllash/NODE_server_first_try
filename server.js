@@ -44,7 +44,7 @@ app.use(session({
 }));
 
 //配置基础中间件
-app.use(express.static(path.join(__dirname, 'static')));
+app.use(express.static(path.join(__dirname, 'dist')));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 

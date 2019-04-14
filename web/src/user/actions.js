@@ -1,5 +1,4 @@
 //测试数据
-import fetch from '../fake';
 import { url } from '../constants';
 
 import * as actionTypes from './actionTypes';
