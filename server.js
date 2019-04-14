@@ -43,7 +43,7 @@ app.use(session({
 }));
 
 //配置基础中间件
-app.use(express.static(path.join(__dirname, 'dist')));
+app.use(express.static(path.join(__dirname, './dist')));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -74,10 +74,10 @@ app.all("*", async (req, res, next) => {
   console.log(`${req.method} ${req.url} - ${ms}ms-${res.statusCode}`);
 });
 
-app.get('/', (req, res) => {
+app.get('/', (req, res, next) => {
   let
     options = {
-      root: __dirname + '/static/',
+      root: __dirname + './dist/',
       dotfiles: 'deny',
       headers: {
         'x-timestamp': Date.now(),
