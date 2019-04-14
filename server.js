@@ -110,7 +110,7 @@ app.post('/api/login', (req, res, next) => {
         req.session.userName = req.body.userName;
         res.send(JSON.stringify({
           code: 1,
-          userName: user.userName
+          userName: user.userName,
           userData: {
             email: user.email,
             friends: user.friends,
