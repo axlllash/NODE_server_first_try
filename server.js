@@ -272,7 +272,8 @@ app.post('/api/blog', (req, res, next) => {
           'userName', req.session.userName,
           'author', author,
           'date', date,
-          'lastEditTime', date(err) => {
+          'lastEditTime', date,
+          (err) => {
             if (err) {
               next(err);
             }
