@@ -363,7 +363,7 @@ app.put('/api/blog', (req, res, next) => {
 });
 
 //删除好友
-app.del('/api/blog/:id', (req, res, next) => {
+app.delete('/api/blog/:id', (req, res, next) => {
   let
     userName = req.session.userName,
     id = req.params.id;
@@ -425,7 +425,7 @@ app.post('/api/friends', (req, res, next) => {
 })
 
 //删除好友
-app.del('/api/friends', (req, res, next) => {
+app.delete('/api/friends', (req, res, next) => {
   let
     userName = req.session.userName,
     friendUsername = req.body.userName;
