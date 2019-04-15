@@ -160,11 +160,11 @@ app.post('/api/register', (req, res, next) => {
     res.send(JSON.stringify({ code: 8 }))
   }
 
-  client.hget(`user:${userName}`, 'userName', (err, userName) => {
+  client.hgetall(`user:${userName}`, (err, result) => {
     if (err) {
       next(err);
     }
-    if (userName) {
+    if (result) {
       res.send(JSON.stringify({ code: 4 }));
     } else {
       //服务器端暂存userName
