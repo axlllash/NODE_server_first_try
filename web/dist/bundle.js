@@ -35112,7 +35112,6 @@ var Header = function (_Component) {
         'header',
         { className: 'header' },
         _react2.default.createElement(_user2.default, { viewStatus: this.props.viewStatus }),
-        _react2.default.createElement(Menu, null),
         this.props.userName ? [_react2.default.createElement(
           'p',
           { key: 'hello' },

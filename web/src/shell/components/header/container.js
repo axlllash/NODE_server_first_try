@@ -24,7 +24,10 @@ class Header extends Component {
     return (
       <header className="header">
         <User viewStatus={this.props.viewStatus} />
+        {/*暂未实现
         <Menu />
+        */
+        }
         {
           this.props.userName?
           [<p key="hello">{`Hello!${this.props.userName}.`}</p>,
