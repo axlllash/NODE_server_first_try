@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Componenet } from 'react';
 
 import { showError } from '../../../../util';
 
