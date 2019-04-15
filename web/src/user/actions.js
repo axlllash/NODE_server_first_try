@@ -30,7 +30,7 @@ const dispatchIfValidPublic = (dispatch, reqId, name) => (action, currentReqId) 
 }
 
 //正常的登录，传递给mapDispatchToProps的
-export const login = (userName, password, withDataBool,shortTimeBool, callback, callbackForError) => (dispatch, getState) => {
+export const login = (userName, password, withoutDataBool,shortTimeBool, callback, callbackForError) => (dispatch, getState) => {
   const loginReqId = ++REQ_ID.currentLoginReqId;
 
   const dispatchIfValid = dispatchIfValidPublic(dispatch, loginReqId, 'currentLoginReqId');
