@@ -36601,11 +36601,7 @@ var RegisterView = function (_Component) {
             value: this.props.registerStatus === status.REGISTER_STATUS_BEFORE_SUCCESS ? '提交成功' : 'Sign Up'
           })
         ),
-        _react2.default.createElement(
-          'div',
-          { className: 'errorZone' },
-          this.state.error
-        )
+        _react2.default.createElement('div', { className: 'errorZone' })
       );
     }
   }]);
@@ -36794,11 +36790,7 @@ var VerifyEmailView = function (_Component) {
             value: this.props.verifyEmailStatus === status.VERIFY_EMAIL_STATUS_BEFORE_SUCCESS ? '注册成功' : '提交'
           })
         ),
-        _react2.default.createElement(
-          'div',
-          { className: 'errorZone' },
-          this.state.error
-        )
+        _react2.default.createElement('div', { className: 'errorZone' })
       );
     }
   }]);

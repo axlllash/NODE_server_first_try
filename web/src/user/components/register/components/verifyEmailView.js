@@ -127,7 +127,7 @@ class VerifyEmailView extends Component {
             }
           />
         </form>
-        <div className="errorZone">{this.state.error}</div>
+        <div className="errorZone"></div>
       </div>
     );
   }
