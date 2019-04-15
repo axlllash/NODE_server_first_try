@@ -35739,6 +35739,7 @@ var register = exports.register = function register(args, callback, callbackForE
         return _promise2.default.reject('Something wrong when register');
       }
     }).then(function (data) {
+      debugger;
       var code = Number(data.code);
       if (code === 1) {
         dispatchIfValid(registerBeforeSuccess());
