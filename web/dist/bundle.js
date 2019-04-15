@@ -34927,9 +34927,21 @@ var Menu = function (_Component) {
         _react2.default.createElement(
           "div",
           { className: "menu" },
-          _react2.default.createElement("div", { className: "clickToChangeApp" }),
-          _react2.default.createElement("div", { className: "clickToFriends" }),
-          _react2.default.createElement("div", { className: "clickToSettings" }),
+          _react2.default.createElement(
+            "div",
+            { className: "clickToChangeApp" },
+            "changeApp"
+          ),
+          _react2.default.createElement(
+            "div",
+            { className: "clickToFriends" },
+            "friends"
+          ),
+          _react2.default.createElement(
+            "div",
+            { className: "clickToSettings" },
+            "settings"
+          ),
           _react2.default.createElement(
             "div",
             { className: "clickToLogoutAndClose" },
@@ -34942,10 +34954,14 @@ var Menu = function (_Component) {
                   className: "logoutViewButton",
                   role: "logoutViewButton",
                   onClick: this.props.changeToLogoutViewStatus },
-                "Sign In"
+                "Sign Out"
               )
             ),
-            _react2.default.createElement("div", { className: "clickToClose" })
+            _react2.default.createElement(
+              "div",
+              { className: "clickToClose" },
+              "x"
+            )
           )
         ),
         _react2.default.createElement(
@@ -34954,7 +34970,7 @@ var Menu = function (_Component) {
           _react2.default.createElement(
             "div",
             { className: "menuUserName" },
-            "this.props.userName"
+            this.props.userName
           ),
           _react2.default.createElement("div", { className: "menuAvatar" })
         )
@@ -35237,10 +35253,10 @@ var Header = function (_Component) {
         'header',
         { className: 'header' },
         _react2.default.createElement(_user2.default, { viewStatus: this.props.viewStatus }),
-        this.props.userName ? {/*而Menu只不过是更方便登录后控制视图的一个模块*/}(_react2.default.createElement(_menu2.default, {
+        this.props.userName ? _react2.default.createElement(_menu2.default, {
           userName: this.props.userName,
           changeToLogoutViewStatus: this.props.changeToLogoutViewStatus
-        })) : _react2.default.createElement(
+        }) : _react2.default.createElement(
           'div',
           { className: 'unloginView' },
           _react2.default.createElement(
@@ -35739,7 +35755,6 @@ var register = exports.register = function register(args, callback, callbackForE
         return _promise2.default.reject('Something wrong when register');
       }
     }).then(function (data) {
-      debugger;
       var code = Number(data.code);
       if (code === 1) {
         dispatchIfValid(registerBeforeSuccess());

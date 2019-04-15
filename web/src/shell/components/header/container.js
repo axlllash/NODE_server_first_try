@@ -25,15 +25,13 @@ class Header extends Component {
     return (
       <header className="header">
         <User viewStatus={this.props.viewStatus} />
-        {/*这里以后写其具体的view*/}
         {
           this.props.userName?
-          {/*而Menu只不过是更方便登录后控制视图的一个模块*/}
-          (<Menu 
+          <Menu 
             userName={this.props.userName}
             changeToLogoutViewStatus={this.props.changeToLogoutViewStatus} 
-          />):
-          (<div className="unloginView">
+          />:
+          <div className="unloginView">
             <div 
               className="loginViewButton"
               role="loginViewButton" 
@@ -44,7 +42,7 @@ class Header extends Component {
               role="registerViewButton" 
               onClick={this.props.changeToRegisterViewStatus}>Sign Up
             </div>
-          </div>)
+          </div>
         }
       </header>
     );
