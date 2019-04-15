@@ -59,40 +59,39 @@ class RegisterView extends Component {
           });
         }
       );
+    } else {
+      this.props.showError('未填写完整，无法提交！');
     }
-  } else {
-    this.props.showError('未填写完整，无法提交！');
   }
-}
 
-handleChange(event) {
-  this.setState({
-    ...this.state,
-    [event.target.name]: event.target.value
-  });
-};
+  handleChange(event) {
+    this.setState({
+      ...this.state,
+      [event.target.name]: event.target.value
+    });
+  };
 
-handleBlur(event) {
-  let
-    error = '',
-    name = event.target.name;
-  switch (name) {
-    case 'verifyCode':
-      {
-        if (!this.state.userName) {
-          error = '用户名不能为空。';
+  handleBlur(event) {
+    let
+      error = '',
+      name = event.target.name;
+    switch (name) {
+      case 'verifyCode':
+        {
+          if (!this.state.userName) {
+            error = '用户名不能为空。';
+          }
+          break;
         }
+      default:
         break;
-      }
-    default:
-      break;
+    }
+    this.props.showError(error);
   }
-  this.props.showError(error);
-}
 
-render() {
-  return (
-    <div className="viewContent">
+  render() {
+    return (
+      <div className="viewContent">
         <form onSubmit={this.handleSubmit}>
           <label htmlFor="verifyCode">请输入您收到的邮箱验证码。</label>
           <input
@@ -114,8 +113,8 @@ render() {
         </form>
         <div className="errorZone">{this.state.error}</div>
       </div>
-  );
-}
+    );
+  }
 }
 
 export default RegisterView;

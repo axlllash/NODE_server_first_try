@@ -36196,14 +36196,431 @@ exports.default = _container2.default;
 
 /***/ }),
 
+/***/ "./src/user/components/register/components/registerView.js":
+/*!*****************************************************************!*\
+  !*** ./src/user/components/register/components/registerView.js ***!
+  \*****************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _defineProperty2 = __webpack_require__(/*! babel-runtime/helpers/defineProperty */ "./node_modules/babel-runtime/helpers/defineProperty.js");
+
+var _defineProperty3 = _interopRequireDefault(_defineProperty2);
+
+var _extends3 = __webpack_require__(/*! babel-runtime/helpers/extends */ "./node_modules/babel-runtime/helpers/extends.js");
+
+var _extends4 = _interopRequireDefault(_extends3);
+
+var _getPrototypeOf = __webpack_require__(/*! babel-runtime/core-js/object/get-prototype-of */ "./node_modules/babel-runtime/core-js/object/get-prototype-of.js");
+
+var _getPrototypeOf2 = _interopRequireDefault(_getPrototypeOf);
+
+var _classCallCheck2 = __webpack_require__(/*! babel-runtime/helpers/classCallCheck */ "./node_modules/babel-runtime/helpers/classCallCheck.js");
+
+var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+var _createClass2 = __webpack_require__(/*! babel-runtime/helpers/createClass */ "./node_modules/babel-runtime/helpers/createClass.js");
+
+var _createClass3 = _interopRequireDefault(_createClass2);
+
+var _possibleConstructorReturn2 = __webpack_require__(/*! babel-runtime/helpers/possibleConstructorReturn */ "./node_modules/babel-runtime/helpers/possibleConstructorReturn.js");
+
+var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
+
+var _inherits2 = __webpack_require__(/*! babel-runtime/helpers/inherits */ "./node_modules/babel-runtime/helpers/inherits.js");
+
+var _inherits3 = _interopRequireDefault(_inherits2);
+
+var _react = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+
+var _react2 = _interopRequireDefault(_react);
+
+var _util = __webpack_require__(/*! ../../../../util */ "./src/util/index.js");
+
+var _constants = __webpack_require__(/*! ../../../constants */ "./src/user/constants.js");
+
+var status = _interopRequireWildcard(_constants);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var emailReg = /^([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+@([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+\.[a-zA-Z]{2,3}$/;
+
+var RegisterView = function (_Component) {
+  (0, _inherits3.default)(RegisterView, _Component);
+
+  function RegisterView(props) {
+    (0, _classCallCheck3.default)(this, RegisterView);
+
+    var _this = (0, _possibleConstructorReturn3.default)(this, (RegisterView.__proto__ || (0, _getPrototypeOf2.default)(RegisterView)).call(this, props));
+
+    _this.state = {
+      userName: '',
+      password1: '',
+      password2: '',
+      email: '',
+      //下面这两个还未实现
+      avatar: 'avatar',
+      customSettings: 'customSettings',
+      registerButtonEnable: true,
+      error: ''
+    };
+    _this.handleChange = _this.handleChange.bind(_this);
+    _this.handleSubmit = _this.handleSubmit.bind(_this);
+    _this.handleBlur = _this.handleBlur.bind(_this);
+    _this.showError = _util.showError.bind(_this);
+    return _this;
+  }
+
+  (0, _createClass3.default)(RegisterView, [{
+    key: 'handleSubmit',
+    value: function handleSubmit(event) {
+      var _this2 = this;
+
+      event.preventDefault();
+      if (this.state.userName && this.state.password1 && this.state.password2 && this.state.password1 === this.state.password2 && this.state.registerButtonEnable) {
+        //将按钮暂时设为不可点击
+        this.setState((0, _extends4.default)({}, this.state, {
+          registerButtonEnable: false
+        }));
+        this.props.register({
+          userName: this.state.userName,
+          password1: this.state.password1,
+          password2: this.state.password2,
+          email: this.state.email,
+          avatar: this.state.avatar,
+          customSettings: this.state.customSettings
+        }, function () {
+          //顺便记录下当前页面的值以移交给下一个页面
+          _this2.prop.logViewData({ userName: _this2.state.userName, password: _this2.state.password1 });
+          //如果注册成功，则跳转到验证邮箱页面
+          _this2.props.toggleView();
+        }, function (error) {
+          _this2.showError(error);
+          //恢复点击
+          _this2.setState((0, _extends4.default)({}, _this2.state, {
+            registerButtonEnable: true
+          }));
+        });
+      } else {
+        this.showError('未填写完整，无法提交！');
+      }
+    }
+  }, {
+    key: 'handleChange',
+    value: function handleChange(event) {
+      this.setState((0, _extends4.default)({}, this.state, (0, _defineProperty3.default)({}, event.target.name, event.target.value)));
+    }
+  }, {
+    key: 'handleBlur',
+    value: function handleBlur(event) {
+      var error = '',
+          name = event.target.name;
+      switch (name) {
+        case 'userName':
+          {
+            if (!this.state.userName) {
+              error = '用户名不能为空。';
+            }
+            break;
+          }
+        case 'password1':
+          {
+            if (!this.state.password1) {
+              error = '第一次输入的密码不能为空。';
+            }
+            break;
+          }
+        case 'password2':
+          {
+            if (!this.state.password2) {
+              error = '第二次输入的密码不能为空。';
+            } else if (this.state.password1 !== this.state.password2) {
+              error = '两次密码不一致';
+            }
+            break;
+          }
+        case 'email':
+          {
+            if (!this.state.email) {
+              error = '邮箱不能为空。';
+            } else if (!emailReg.test(this.state.email)) {
+              error = '请输入正确的邮箱格式。';
+            }
+          }
+        default:
+          break;
+      }
+      this.props.showError(error);
+    }
+  }, {
+    key: 'render',
+    value: function render() {
+      return _react2.default.createElement(
+        'div',
+        { className: 'viewContent' },
+        _react2.default.createElement(
+          'form',
+          { onSubmit: this.handleSubmit },
+          _react2.default.createElement(
+            'label',
+            { htmlFor: 'registerUserName' },
+            '\u7528\u6237\u540D'
+          ),
+          _react2.default.createElement('input', {
+            type: 'text',
+            id: 'registerUserName',
+            name: 'userName',
+            onChange: this.handleChange,
+            onBlur: this.handleBlur,
+            value: this.state.userName
+          }),
+          _react2.default.createElement(
+            'label',
+            { htmlFor: 'registerPassword1' },
+            '\u8F93\u5165\u5BC6\u7801'
+          ),
+          _react2.default.createElement('input', {
+            type: 'password',
+            id: 'registerPassword1',
+            name: 'password1',
+            onChange: this.handleChange,
+            onBlur: this.handleBlur,
+            value: this.state.password1
+          }),
+          _react2.default.createElement(
+            'label',
+            { htmlFor: 'registerPassword1' },
+            '\u8BF7\u518D\u6B21\u8F93\u5165\u5BC6\u7801'
+          ),
+          _react2.default.createElement('input', {
+            type: 'password',
+            id: 'registerPassword2',
+            name: 'password2',
+            onChange: this.handleChange,
+            onBlur: this.handleBlur,
+            value: this.state.password2
+          }),
+          _react2.default.createElement(
+            'label',
+            { htmlFor: 'registerEmail' },
+            '\u8BF7\u8F93\u5165\u90AE\u7BB1\u4EE5\u83B7\u53D6\u9A8C\u8BC1\u7801'
+          ),
+          _react2.default.createElement('input', {
+            type: 'text',
+            id: 'registerEmail',
+            name: 'email',
+            onChange: this.handleChange,
+            onBlur: this.handleBlur,
+            value: this.state.email
+          }),
+          _react2.default.createElement('input', {
+            type: 'submit',
+            id: 'registerButton',
+            value: this.props.registerStatus === status.REGISTER_STATUS_BEFORE_SUCCESS ? '提交成功' : 'Sign Up'
+          })
+        ),
+        _react2.default.createElement(
+          'div',
+          { className: 'errorZone' },
+          this.state.error
+        )
+      );
+    }
+  }]);
+  return RegisterView;
+}(Component);
+
+exports.default = RegisterView;
+
+/***/ }),
+
 /***/ "./src/user/components/register/components/verifyEmailView.js":
 /*!********************************************************************!*\
   !*** ./src/user/components/register/components/verifyEmailView.js ***!
   \********************************************************************/
 /*! no static exports found */
-/***/ (function(module, exports) {
+/***/ (function(module, exports, __webpack_require__) {
 
-throw new Error("Module build failed (from ./node_modules/babel-loader/lib/index.js):\nSyntaxError: C:/Users/Axl/Desktop/node_try/web/src/user/components/register/components/verifyEmailView.js: Unexpected token (63:9)\n\n\u001b[0m \u001b[90m 61 | \u001b[39m      )\u001b[33m;\u001b[39m\n \u001b[90m 62 | \u001b[39m    }\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 63 | \u001b[39m  } \u001b[36melse\u001b[39m {\n \u001b[90m    | \u001b[39m         \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 64 | \u001b[39m    \u001b[36mthis\u001b[39m\u001b[33m.\u001b[39mprops\u001b[33m.\u001b[39mshowError(\u001b[32m'未填写完整，无法提交！'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 65 | \u001b[39m  }\n \u001b[90m 66 | \u001b[39m}\u001b[0m\n");
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _defineProperty2 = __webpack_require__(/*! babel-runtime/helpers/defineProperty */ "./node_modules/babel-runtime/helpers/defineProperty.js");
+
+var _defineProperty3 = _interopRequireDefault(_defineProperty2);
+
+var _extends3 = __webpack_require__(/*! babel-runtime/helpers/extends */ "./node_modules/babel-runtime/helpers/extends.js");
+
+var _extends4 = _interopRequireDefault(_extends3);
+
+var _getPrototypeOf = __webpack_require__(/*! babel-runtime/core-js/object/get-prototype-of */ "./node_modules/babel-runtime/core-js/object/get-prototype-of.js");
+
+var _getPrototypeOf2 = _interopRequireDefault(_getPrototypeOf);
+
+var _classCallCheck2 = __webpack_require__(/*! babel-runtime/helpers/classCallCheck */ "./node_modules/babel-runtime/helpers/classCallCheck.js");
+
+var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+var _createClass2 = __webpack_require__(/*! babel-runtime/helpers/createClass */ "./node_modules/babel-runtime/helpers/createClass.js");
+
+var _createClass3 = _interopRequireDefault(_createClass2);
+
+var _possibleConstructorReturn2 = __webpack_require__(/*! babel-runtime/helpers/possibleConstructorReturn */ "./node_modules/babel-runtime/helpers/possibleConstructorReturn.js");
+
+var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
+
+var _inherits2 = __webpack_require__(/*! babel-runtime/helpers/inherits */ "./node_modules/babel-runtime/helpers/inherits.js");
+
+var _inherits3 = _interopRequireDefault(_inherits2);
+
+var _react = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+
+var _react2 = _interopRequireDefault(_react);
+
+var _util = __webpack_require__(/*! ../../../../util */ "./src/util/index.js");
+
+var _constants = __webpack_require__(/*! ../../../constants */ "./src/user/constants.js");
+
+var status = _interopRequireWildcard(_constants);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var RegisterView = function (_Component) {
+  (0, _inherits3.default)(RegisterView, _Component);
+
+  function RegisterView(props) {
+    (0, _classCallCheck3.default)(this, RegisterView);
+
+    var _this = (0, _possibleConstructorReturn3.default)(this, (RegisterView.__proto__ || (0, _getPrototypeOf2.default)(RegisterView)).call(this, props));
+
+    _this.state = {
+      verifyCode: '',
+      verifyEmailButtonEnabl: true,
+      error: ''
+    };
+    _this.handleChange = _this.handleChange.bind(_this);
+    _this.handleSubmit = _this.handleSubmit.bind(_this);
+    _this.handleBlur = _this.handleBlur.bind(_this);
+    _this.showError = _util.showError.bind(_this);
+    return _this;
+  }
+
+  (0, _createClass3.default)(RegisterView, [{
+    key: 'handleSubmit',
+    value: function handleSubmit(event) {
+      var _this2 = this;
+
+      event.preventDefault();
+      if (this.state.verifyCode && this.state.registerButtonEnable) {
+        //将按钮暂时设为不可点击
+        this.setState((0, _extends4.default)({}, this.state, {
+          verifyEmailButtonEnable: false
+        }));
+
+        //如果注册且验证代码成功，则直接登录
+        this.props.verifyEmail(this.state.verifyCode, function (_ref) {
+          var userName = _ref.userName,
+              userData = _ref.userData;
+
+          _this2.props.login(_this2.props.firstViewData.userName, _this2.props.firstViewData.password, false, function () {
+            //成功的回调函数
+            _this2.props.changeToNoneViewStatus();
+          }, function (error) {
+            //失败的回调函数
+            _this2.showError(error);
+            //恢复点击
+            _this2.setState((0, _extends4.default)({}, state, {
+              verifyEmailButtonEnable: true
+            }));
+          });
+        }, function (error) {
+          _this2.showError(error);
+          //恢复点击
+          _this2.setState((0, _extends4.default)({}, _this2.state, {
+            verifyEmailButtonEnable: true
+          }));
+        });
+      } else {
+        this.props.showError('未填写完整，无法提交！');
+      }
+    }
+  }, {
+    key: 'handleChange',
+    value: function handleChange(event) {
+      this.setState((0, _extends4.default)({}, this.state, (0, _defineProperty3.default)({}, event.target.name, event.target.value)));
+    }
+  }, {
+    key: 'handleBlur',
+    value: function handleBlur(event) {
+      var error = '',
+          name = event.target.name;
+      switch (name) {
+        case 'verifyCode':
+          {
+            if (!this.state.userName) {
+              error = '用户名不能为空。';
+            }
+            break;
+          }
+        default:
+          break;
+      }
+      this.props.showError(error);
+    }
+  }, {
+    key: 'render',
+    value: function render() {
+      return _react2.default.createElement(
+        'div',
+        { className: 'viewContent' },
+        _react2.default.createElement(
+          'form',
+          { onSubmit: this.handleSubmit },
+          _react2.default.createElement(
+            'label',
+            { htmlFor: 'verifyCode' },
+            '\u8BF7\u8F93\u5165\u60A8\u6536\u5230\u7684\u90AE\u7BB1\u9A8C\u8BC1\u7801\u3002'
+          ),
+          _react2.default.createElement('input', {
+            type: 'text',
+            id: 'verifyCode',
+            name: 'verifyCode',
+            onChange: this.handleChange,
+            onBlur: this.handleBlur,
+            value: this.state.userName
+          }),
+          _react2.default.createElement('input', {
+            type: 'submit',
+            id: 'verifyEmailButton',
+            value: this.props.verifyEmailStatus === status.VERIFY_EMAIL_STATUS_BEFORE_SUCCESS ? '注册成功' : '提交'
+          })
+        ),
+        _react2.default.createElement(
+          'div',
+          { className: 'errorZone' },
+          this.state.error
+        )
+      );
+    }
+  }]);
+  return RegisterView;
+}(Component);
+
+exports.default = RegisterView;
 
 /***/ }),
 
@@ -36257,9 +36674,9 @@ var _util = __webpack_require__(/*! ../../../util */ "./src/util/index.js");
 
 var _actions = __webpack_require__(/*! ../../actions */ "./src/user/actions.js");
 
-var _reigsterView = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module './components/reigsterView'"); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
+var _registerView = __webpack_require__(/*! ./components/registerView */ "./src/user/components/register/components/registerView.js");
 
-var _reigsterView2 = _interopRequireDefault(_reigsterView);
+var _registerView2 = _interopRequireDefault(_registerView);
 
 var _verifyEmailView = __webpack_require__(/*! ./components/verifyEmailView */ "./src/user/components/register/components/verifyEmailView.js");
 
@@ -36320,7 +36737,7 @@ var Register = function (_Component) {
             'x'
           )
         ),
-        registerViewStatus ? _react2.default.createElement(_reigsterView2.default, {
+        registerViewStatus ? _react2.default.createElement(_registerView2.default, {
           register: this.props.register,
           registerStatus: this.props.registerStatus,
           toggleView: this.toggleView,
