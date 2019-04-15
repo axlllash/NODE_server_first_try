@@ -44,6 +44,7 @@ class Login extends Component {
         this.state.userName,
         this.state.password,
         false,
+        false,
         () => {
           //成功的回调函数
           this.props.changeToNoneViewStatus();

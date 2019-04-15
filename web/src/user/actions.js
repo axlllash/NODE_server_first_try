@@ -1,4 +1,6 @@
 //测试数据
+import fetch from '../fake';
+
 import { url } from '../constants';
 
 import * as actionTypes from './actionTypes';
@@ -28,7 +30,7 @@ const dispatchIfValidPublic = (dispatch, reqId, name) => (action, currentReqId) 
 }
 
 //正常的登录，传递给mapDispatchToProps的
-export const login = (userName, password, shortTimeBool, callback, callbackForError) => (dispatch, getState) => {
+export const login = (userName, password, withoutDataBool,shortTimeBool, callback, callbackForError) => (dispatch, getState) => {
   const loginReqId = ++REQ_ID.currentLoginReqId;
 
   const dispatchIfValid = dispatchIfValidPublic(dispatch, loginReqId, 'currentLoginReqId');
@@ -37,7 +39,7 @@ export const login = (userName, password, shortTimeBool, callback, callbackForEr
   dispatchIfValid(loginStart());
 
   //开始向服务器端申请登录
-  (shortTimeBool ? fetch(url.login) : fetch(url.login, {
+  (withoutDataBool ? fetch(url.login) : fetch(url.login, {
     method: 'post',
     headers: {
       'Content - Type': 'application/json'
@@ -188,7 +190,7 @@ export const logout = (callback, callbackForError) => (dispatch, getState) => {
     })
     .then(data => {
       if (Number(data.code) === 1) {
-        dispatchIfValid(verifyEmailSuccess());
+        dispatchIfValid(logoutSuccess());
         if (typeof callback === 'function') {
           callback();
         }

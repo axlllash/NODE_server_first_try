@@ -34796,6 +34796,77 @@ var url = exports.url = {
 
 /***/ }),
 
+/***/ "./src/fake/index.js":
+/*!***************************!*\
+  !*** ./src/fake/index.js ***!
+  \***************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _promise = __webpack_require__(/*! babel-runtime/core-js/promise */ "./node_modules/babel-runtime/core-js/promise.js");
+
+var _promise2 = _interopRequireDefault(_promise);
+
+var _constants = __webpack_require__(/*! ../constants */ "./src/constants.js");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var fakeFetch = function fakeFetch(url_param, options) {
+  console.dir(options);
+  switch (url_param) {
+    case _constants.url.login:
+      {
+        return _promise2.default.resolve({
+          ok: true,
+          json: function json() {
+            return _promise2.default.resolve({ code: 1, userName: 'weiyu', userData: { email: '123' } });
+          }
+        });
+        // return Promise.reject('wtf is going on!');
+      }
+    case _constants.url.logout:
+      {
+        return _promise2.default.resolve({
+          ok: true,
+          json: function json() {
+            return _promise2.default.resolve({ code: 1 });
+          }
+        });
+      }
+    case _constants.url.register:
+      {
+        return _promise2.default.resolve({
+          ok: true,
+          json: function json() {
+            return _promise2.default.resolve({ code: 1 });
+          }
+        });
+      }
+    case _constants.url.verifyEmail:
+      {
+        return _promise2.default.resolve({
+          ok: true,
+          json: function json() {
+            return _promise2.default.resolve({ code: 1 });
+          }
+        });
+      }
+    default:
+      break;
+  }
+};
+
+exports.default = fakeFetch;
+
+/***/ }),
+
 /***/ "./src/home/index.js":
 /*!***************************!*\
   !*** ./src/home/index.js ***!
@@ -35469,6 +35540,10 @@ var _stringify = __webpack_require__(/*! babel-runtime/core-js/json/stringify */
 
 var _stringify2 = _interopRequireDefault(_stringify);
 
+var _fake = __webpack_require__(/*! ../fake */ "./src/fake/index.js");
+
+var _fake2 = _interopRequireDefault(_fake);
+
 var _constants = __webpack_require__(/*! ../constants */ "./src/constants.js");
 
 var _actionTypes = __webpack_require__(/*! ./actionTypes */ "./src/user/actionTypes.js");
@@ -35480,7 +35555,6 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 //设置三个模块变量，以防止请求竞争
-//测试数据
 var REQ_ID = {
   currentLoginReqId: 0,
   currentRegisterReqId: 0,
@@ -35488,7 +35562,8 @@ var REQ_ID = {
   currentVerifyEmailReqId: 0
 
   //登录界面提示用户登录成功所需要的时间
-};var loginBeforeSuccessTime = 2000;
+}; //测试数据
+var loginBeforeSuccessTime = 2000;
 //首次加载并不需要提示用户成功,注册后自动登录也不需要，所以暂时设为0
 var loginBeforeSuccessShortTime = 0;
 //注册界面提示用户注册成功所需要的时间
@@ -35506,7 +35581,7 @@ var dispatchIfValidPublic = function dispatchIfValidPublic(dispatch, reqId, name
 };
 
 //正常的登录，传递给mapDispatchToProps的
-var login = exports.login = function login(userName, password, shortTimeBool, callback, callbackForError) {
+var login = exports.login = function login(userName, password, withoutDataBool, shortTimeBool, callback, callbackForError) {
   return function (dispatch, getState) {
     var loginReqId = ++REQ_ID.currentLoginReqId;
 
@@ -35516,7 +35591,7 @@ var login = exports.login = function login(userName, password, shortTimeBool, ca
     dispatchIfValid(loginStart());
 
     //开始向服务器端申请登录
-    (shortTimeBool ? fetch(_constants.url.login) : fetch(_constants.url.login, {
+    (withoutDataBool ? (0, _fake2.default)(_constants.url.login) : (0, _fake2.default)(_constants.url.login, {
       method: 'post',
       headers: {
         'Content - Type': 'application/json'
@@ -35601,7 +35676,7 @@ var register = exports.register = function register(args, callback, callbackForE
     //开始分发loginStart的action creators
     dispatchIfValid(registerStart());
 
-    fetch(_constants.url.register, {
+    (0, _fake2.default)(_constants.url.register, {
       method: 'post',
       headers: {
         'Content-Type': 'application/json'
@@ -35669,7 +35744,7 @@ var logout = exports.logout = function logout(callback, callbackForError) {
     //开始dispatch注销开始的action
     dispatchIfValid(logoutStart());
 
-    fetch(_constants.url.logout).then(function (res) {
+    (0, _fake2.default)(_constants.url.logout).then(function (res) {
       if (res.ok) {
         return res.json();
       } else {
@@ -35677,7 +35752,7 @@ var logout = exports.logout = function logout(callback, callbackForError) {
       }
     }).then(function (data) {
       if (Number(data.code) === 1) {
-        dispatchIfValid(verifyEmailSuccess());
+        dispatchIfValid(logoutSuccess());
         if (typeof callback === 'function') {
           callback();
         }
@@ -35720,7 +35795,7 @@ var verifyEmail = exports.verifyEmail = function verifyEmail(verifyCode, callbac
     //开始dispatch注销开始的action
     dispatchIfValid(verifyEmailStart());
 
-    fetch(_constants.url.verifyEmail).then(function (res) {
+    (0, _fake2.default)(_constants.url.verifyEmail).then(function (res) {
       if (res.ok) {
         return res.json();
       } else {
@@ -35877,7 +35952,7 @@ var Login = function (_Component) {
         this.setState((0, _extends4.default)({}, this.state, {
           loginButtonEnable: false
         }));
-        this.props.login(this.state.userName, this.state.password, false, function () {
+        this.props.login(this.state.userName, this.state.password, false, false, function () {
           //成功的回调函数
           _this2.props.changeToNoneViewStatus();
         }, function (error) {
@@ -36252,6 +36327,7 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var emailReg = /^([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+@([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+\.[a-zA-Z]{2,3}$/;
+var passwordReg = /^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{8,16}$/;
 
 var RegisterView = function (_Component) {
   (0, _inherits3.default)(RegisterView, _Component);
@@ -36285,7 +36361,7 @@ var RegisterView = function (_Component) {
       var _this2 = this;
 
       event.preventDefault();
-      if (this.state.userName && this.state.password1 && this.state.password2 && this.state.password1 === this.state.password2 && this.state.registerButtonEnable) {
+      if (this.state.userName && this.state.password1 && this.state.password2 && this.state.password1 === this.state.password2 && this.state.email && emailReg.test(this.state.email) && this.state.registerButtonEnable && passwordReg.test(this.state.password1)) {
         //将按钮暂时设为不可点击
         this.setState((0, _extends4.default)({}, this.state, {
           registerButtonEnable: false
@@ -36299,7 +36375,7 @@ var RegisterView = function (_Component) {
           customSettings: this.state.customSettings
         }, function () {
           //顺便记录下当前页面的值以移交给下一个页面
-          _this2.prop.logViewData({ userName: _this2.state.userName, password: _this2.state.password1 });
+          _this2.props.logViewData('firstViewData', { userName: _this2.state.userName, password: _this2.state.password1 });
           //如果注册成功，则跳转到验证邮箱页面
           _this2.props.toggleView();
         }, function (error) {
@@ -36310,7 +36386,7 @@ var RegisterView = function (_Component) {
           }));
         });
       } else {
-        this.showError('未填写完整，无法提交！');
+        this.showError('请输入正确信息。');
       }
     }
   }, {
@@ -36335,6 +36411,8 @@ var RegisterView = function (_Component) {
           {
             if (!this.state.password1) {
               error = '第一次输入的密码不能为空。';
+            } else if (!passwordReg.test(this.state.password1)) {
+              error = '密码由8到16位的密码或数字组成。';
             }
             break;
           }
@@ -36358,7 +36436,7 @@ var RegisterView = function (_Component) {
         default:
           break;
       }
-      this.props.showError(error);
+      this.showError(error);
     }
   }, {
     key: 'render',
@@ -36498,17 +36576,19 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var RegisterView = function (_Component) {
-  (0, _inherits3.default)(RegisterView, _Component);
+var verifyCodeReg = /^\d{6}$/;
 
-  function RegisterView(props) {
-    (0, _classCallCheck3.default)(this, RegisterView);
+var VerifyEmailView = function (_Component) {
+  (0, _inherits3.default)(VerifyEmailView, _Component);
 
-    var _this = (0, _possibleConstructorReturn3.default)(this, (RegisterView.__proto__ || (0, _getPrototypeOf2.default)(RegisterView)).call(this, props));
+  function VerifyEmailView(props) {
+    (0, _classCallCheck3.default)(this, VerifyEmailView);
+
+    var _this = (0, _possibleConstructorReturn3.default)(this, (VerifyEmailView.__proto__ || (0, _getPrototypeOf2.default)(VerifyEmailView)).call(this, props));
 
     _this.state = {
       verifyCode: '',
-      verifyEmailButtonEnabl: true,
+      verifyEmailButtonEnable: true,
       error: ''
     };
     _this.handleChange = _this.handleChange.bind(_this);
@@ -36518,24 +36598,22 @@ var RegisterView = function (_Component) {
     return _this;
   }
 
-  (0, _createClass3.default)(RegisterView, [{
+  (0, _createClass3.default)(VerifyEmailView, [{
     key: 'handleSubmit',
     value: function handleSubmit(event) {
       var _this2 = this;
 
       event.preventDefault();
-      if (this.state.verifyCode && this.state.registerButtonEnable) {
+      debugger;
+      if (this.state.verifyCode && this.state.verifyEmailButtonEnable && verifyCodeReg.test(Number(this.state.verifyCode))) {
         //将按钮暂时设为不可点击
         this.setState((0, _extends4.default)({}, this.state, {
           verifyEmailButtonEnable: false
         }));
 
         //如果注册且验证代码成功，则直接登录
-        this.props.verifyEmail(this.state.verifyCode, function (_ref) {
-          var userName = _ref.userName,
-              userData = _ref.userData;
-
-          _this2.props.login(_this2.props.firstViewData.userName, _this2.props.firstViewData.password, false, function () {
+        this.props.verifyEmail(this.state.verifyCode, function () {
+          _this2.props.login(_this2.props.firstViewData.userName, _this2.props.firstViewData.password, false, true, function () {
             //成功的回调函数
             _this2.props.changeToNoneViewStatus();
           }, function (error) {
@@ -36554,7 +36632,7 @@ var RegisterView = function (_Component) {
           }));
         });
       } else {
-        this.props.showError('未填写完整，无法提交！');
+        this.showError('请输入正确信息。');
       }
     }
   }, {
@@ -36570,15 +36648,17 @@ var RegisterView = function (_Component) {
       switch (name) {
         case 'verifyCode':
           {
-            if (!this.state.userName) {
-              error = '用户名不能为空。';
+            if (!this.state.verifyCode) {
+              error = '邮箱验证码不能为空。';
+            } else if (!verifyCodeReg.test(Number(this.state.verifyCode))) {
+              error = '验证码为6位数字';
+              break;
             }
-            break;
           }
         default:
           break;
       }
-      this.props.showError(error);
+      this.showError(error);
     }
   }, {
     key: 'render',
@@ -36616,10 +36696,10 @@ var RegisterView = function (_Component) {
       );
     }
   }]);
-  return RegisterView;
+  return VerifyEmailView;
 }(_react.Component);
 
-exports.default = RegisterView;
+exports.default = VerifyEmailView;
 
 /***/ }),
 
@@ -36637,9 +36717,13 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _extends2 = __webpack_require__(/*! babel-runtime/helpers/extends */ "./node_modules/babel-runtime/helpers/extends.js");
+var _defineProperty2 = __webpack_require__(/*! babel-runtime/helpers/defineProperty */ "./node_modules/babel-runtime/helpers/defineProperty.js");
 
-var _extends3 = _interopRequireDefault(_extends2);
+var _defineProperty3 = _interopRequireDefault(_defineProperty2);
+
+var _extends3 = __webpack_require__(/*! babel-runtime/helpers/extends */ "./node_modules/babel-runtime/helpers/extends.js");
+
+var _extends4 = _interopRequireDefault(_extends3);
 
 var _getPrototypeOf = __webpack_require__(/*! babel-runtime/core-js/object/get-prototype-of */ "./node_modules/babel-runtime/core-js/object/get-prototype-of.js");
 
@@ -36693,7 +36777,7 @@ var Register = function (_Component) {
 
     _this.state = {
       //现在需要两个试图了，一个是注册视图，第二个视图为验证邮箱的视图,如果是第一个视图则为布尔值true，第二个则为布尔值false
-      registerViewStatus: '',
+      registerViewStatus: true,
       firstViewData: ''
     };
     _this.toggleView = _this.toggleView.bind(_this);
@@ -36704,16 +36788,14 @@ var Register = function (_Component) {
   (0, _createClass3.default)(Register, [{
     key: 'toggleView',
     value: function toggleView() {
-      this.setState((0, _extends3.default)({}, this.state, {
+      this.setState((0, _extends4.default)({}, this.state, {
         registerViewStatus: !this.state.registerViewStatus
       }));
     }
   }, {
     key: 'logViewData',
     value: function logViewData(name, data) {
-      this.setState((0, _extends3.default)({}, state, {
-        firstViewData: data
-      }));
+      this.setState((0, _extends4.default)({}, this.state, (0, _defineProperty3.default)({}, name, data)));
     }
   }, {
     key: 'render',
@@ -36744,7 +36826,9 @@ var Register = function (_Component) {
         }) : _react2.default.createElement(_verifyEmailView2.default, {
           firstViewData: this.state.firstViewData,
           changeToNoneViewStatus: this.props.changeToNoneViewStatus,
-          login: this.porps.login
+          login: this.props.login,
+          verifyEmail: this.props.verifyEmail,
+          verifyEmailStatus: this.props.verifyEmailStatus
         })
       );
     }
@@ -36754,12 +36838,15 @@ var Register = function (_Component) {
 
 var mapStateToProps = function mapStateToProps(state) {
   return {
-    registerStatus: state.user.registerStatus
+    registerStatus: state.user.registerStatus,
+    verifyEmailStatus: state.user.verifyEmailStatus
   };
 };
 var mapDispatchToProps = {
+  changeToNoneViewStatus: _header.actionCreators.changeToNoneViewStatus,
   register: _actions.register,
-  login: _actions.login
+  login: _actions.login,
+  verifyEmail: _actions.verifyEmail
 };
 
 exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(Register);
@@ -36974,8 +37061,6 @@ exports.default = function () {
     case actionTypes.USER_VERIFY_EMAIL_SUCCESS:
       {
         return (0, _extends3.default)({}, state, {
-          userName: action.payload.userName,
-          userData: action.payload.userData,
           verifyEmailStatus: status.VERIFY_EMAIL_STATUS_SUCCESS,
           loginStatus: '',
           registerStatus: '',

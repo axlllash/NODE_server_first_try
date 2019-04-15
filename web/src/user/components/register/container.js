@@ -6,7 +6,8 @@ import { showError } from '../../../util';
 
 import {
   register,
-  login
+  login,
+  verifyEmail
 } from '../../actions';
 import RegisterView from './components/registerView';
 import VerifyEmailView from './components/verifyEmailView';
@@ -16,7 +17,7 @@ class Register extends Component {
     super(props);
     this.state = {
       //现在需要两个试图了，一个是注册视图，第二个视图为验证邮箱的视图,如果是第一个视图则为布尔值true，第二个则为布尔值false
-      registerViewStatus: '',
+      registerViewStatus: true,
       firstViewData: ''
     }
     this.toggleView = this.toggleView.bind(this);
@@ -32,8 +33,8 @@ class Register extends Component {
 
   logViewData(name, data) {
     this.setState({
-      ...state,
-      firstViewData: data
+      ...this.state,
+      [name]: data
     });
   }
 
@@ -55,7 +56,9 @@ class Register extends Component {
           <VerifyEmailView
             firstViewData={this.state.firstViewData}
             changeToNoneViewStatus={this.props.changeToNoneViewStatus}
-            login={this.porps.login}
+            login={this.props.login}
+            verifyEmail={this.props.verifyEmail}
+            verifyEmailStatus={this.props.verifyEmailStatus}
           />}
       </div>
     );
@@ -65,11 +68,14 @@ class Register extends Component {
 const mapStateToProps = (state) => {
   return {
     registerStatus: state.user.registerStatus,
+    verifyEmailStatus: state.user.verifyEmailStatus
   }
 }
 const mapDispatchToProps = {
+  changeToNoneViewStatus: headerViewActionCreators.changeToNoneViewStatus,
   register,
-  login
+  login,
+  verifyEmail
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Register);

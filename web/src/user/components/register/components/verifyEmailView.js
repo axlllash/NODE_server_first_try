@@ -4,12 +4,14 @@ import { showError } from '../../../../util';
 
 import * as status from '../../../constants';
 
-class RegisterView extends Component {
+const verifyCodeReg = /^\d{6}$/;
+
+class VerifyEmailView extends Component {
   constructor(props) {
     super(props);
     this.state = {
       verifyCode: '',
-      verifyEmailButtonEnabl: true,
+      verifyEmailButtonEnable: true,
       error: '',
     }
     this.handleChange = this.handleChange.bind(this);
@@ -20,8 +22,9 @@ class RegisterView extends Component {
 
   handleSubmit(event) {
     event.preventDefault();
-    if (this.state.verifyCode &&
-      this.state.registerButtonEnable) {
+    debugger;
+    if (this.state.verifyCode && this.state.verifyEmailButtonEnable &&
+      verifyCodeReg.test(Number(this.state.verifyCode))) {
       //将按钮暂时设为不可点击
       this.setState({
         ...this.state,
@@ -30,11 +33,12 @@ class RegisterView extends Component {
 
       //如果注册且验证代码成功，则直接登录
       this.props.verifyEmail(this.state.verifyCode,
-        ({ userName, userData }) => {
+        () => {
           this.props.login(
             this.props.firstViewData.userName,
             this.props.firstViewData.password,
             false,
+            true,
             () => {
               //成功的回调函数
               this.props.changeToNoneViewStatus();
@@ -60,7 +64,7 @@ class RegisterView extends Component {
         }
       );
     } else {
-      this.props.showError('未填写完整，无法提交！');
+      this.showError('请输入正确信息。');
     }
   }
 
@@ -78,15 +82,17 @@ class RegisterView extends Component {
     switch (name) {
       case 'verifyCode':
         {
-          if (!this.state.userName) {
-            error = '用户名不能为空。';
+          if (!this.state.verifyCode) {
+            error = '邮箱验证码不能为空。';
+          } else if (!verifyCodeReg.test(Number(this.state.verifyCode))) {
+            error = '验证码为6位数字';
+            break;
           }
-          break;
         }
       default:
         break;
     }
-    this.props.showError(error);
+    this.showError(error);
   }
 
   render() {
@@ -117,4 +123,4 @@ class RegisterView extends Component {
   }
 }
 
-export default RegisterView;
+export default VerifyEmailView;

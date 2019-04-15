@@ -15,14 +15,18 @@ const
   createVerifyCode = require('./util').createVerifyCode;
 
 //一些全局参数
-sessionOptions = {
-  ciient: client,
-  port: 6379,
-  host: '127.0.0.1',
-  logErrors: true,
-  db: 2,
-  pass: '123456ww'
-};
+const
+  sessionOptions = {
+    ciient: client,
+    port: 6379,
+    host: '127.0.0.1',
+    logErrors: true,
+    db: 2,
+    pass: '123456ww'
+  },
+  verifyCodeReg = /^\d{6}$/,
+  emailReg = /^([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+@([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+\.[a-zA-Z]{2,3}$/,
+  passwordReg = /^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{8,16}$/;
 
 //用于redis提示错误信息
 client.on('error', function(err) {
@@ -141,13 +145,12 @@ app.post('/api/register', (req, res, next) => {
     password1 = req.body.password1,
     password2 = req.body.password2,
     email = req.body.email,
-    myreg = /^([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+@([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+\.[a-zA-Z]{2,3}$/,
     verifyCode;
 
-  if (!userName || !password1 || !password2 || password1 !== password2) {
+  if (!userName || !password1 || !password2 || password1 !== password2 || !passwordReg.test(password1)) {
     res.send(JSON.stringify({ code: 3 }));
   }
-  if (!myreg.test(email)) {
+  if (!emailReg.test(email)) {
     res.send(JSON.stringify({ code: 8 }))
   }
 
@@ -187,7 +190,7 @@ app.post('/api/register', (req, res, next) => {
 
 //这里验证邮箱
 app.post('/api/verifyEmail', (req, res, next) => {
-  if (!req.body.verifyCode || !req.session.tempUserName) {
+  if (!req.body.verifyCode || !req.session.tempUserName || !verifyCodeReg.test(req.body.verifyCode)) {
     res.send(JSON.stringify({ code: 3 }));
   }
 

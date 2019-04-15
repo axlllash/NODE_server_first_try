@@ -5,6 +5,7 @@ import { showError } from '../../../../util';
 import * as status from '../../../constants';
 
 const emailReg = /^([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+@([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+\.[a-zA-Z]{2,3}$/;
+const passwordReg = /^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{8,16}$/;
 
 class RegisterView extends Component {
   constructor(props) {
@@ -29,8 +30,9 @@ class RegisterView extends Component {
   handleSubmit(event) {
     event.preventDefault();
     if (this.state.userName && this.state.password1 && this.state.password2 &&
-      this.state.password1 === this.state.password2 &&
-      this.state.registerButtonEnable) {
+      this.state.password1 === this.state.password2 && this.state.email &&
+      emailReg.test(this.state.email) && this.state.registerButtonEnable &&
+      passwordReg.test(this.state.password1)) {
       //将按钮暂时设为不可点击
       this.setState({
         ...this.state,
@@ -46,7 +48,7 @@ class RegisterView extends Component {
         },
         () => {
           //顺便记录下当前页面的值以移交给下一个页面
-          this.prop.logViewData({ userName: this.state.userName, password: this.state.password1 });
+          this.props.logViewData('firstViewData',{ userName: this.state.userName, password: this.state.password1 });
           //如果注册成功，则跳转到验证邮箱页面
           this.props.toggleView();
         },
@@ -59,7 +61,7 @@ class RegisterView extends Component {
           });
         });
     } else {
-      this.showError('未填写完整，无法提交！');
+      this.showError('请输入正确信息。');
     }
   }
 
@@ -86,6 +88,8 @@ class RegisterView extends Component {
         {
           if (!this.state.password1) {
             error = '第一次输入的密码不能为空。';
+          }else if(!passwordReg.test(this.state.password1)){
+            error ='密码由8到16位的密码或数字组成。';
           }
           break;
         }
@@ -109,7 +113,7 @@ class RegisterView extends Component {
       default:
         break;
     }
-    this.props.showError(error);
+    this.showError(error);
   }
 
   render() {

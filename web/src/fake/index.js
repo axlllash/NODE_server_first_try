@@ -25,6 +25,13 @@ const fakeFetch = (url_param, options) => {
           json: () => (Promise.resolve({ code: 1 }))
         });
       }
+    case url.verifyEmail:
+      {
+        return Promise.resolve({
+          ok: true,
+          json: () => (Promise.resolve({ code: 1 }))
+        });
+      }
     default:
       break;
   }

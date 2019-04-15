@@ -24,8 +24,6 @@ export default (state = initialState, action) => {
       {
         return {
           ...state,
-          userName: action.payload.userName,
-          userData: action.payload.userData,
           verifyEmailStatus: status.VERIFY_EMAIL_STATUS_SUCCESS,
           loginStatus:'',
           registerStatus:'',
