@@ -8,7 +8,7 @@ import {
   register,
   login
 } from '../../actions';
-import RegisterView from './components/reigsterView';
+import RegisterView from './components/registerView';
 import VerifyEmailView from './components/verifyEmailView';
 
 class Register extends Component {
