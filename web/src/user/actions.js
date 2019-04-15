@@ -30,7 +30,7 @@ const dispatchIfValidPublic = (dispatch, reqId, name) => (action, currentReqId) 
 }
 
 //正常的登录，传递给mapDispatchToProps的
-export const login = (userName, password, withoutDataBool,shortTimeBool, callback, callbackForError) => (dispatch, getState) => {
+export const login = (userName, password, withoutDataBool, shortTimeBool, callback, callbackForError) => (dispatch, getState) => {
   const loginReqId = ++REQ_ID.currentLoginReqId;
 
   const dispatchIfValid = dispatchIfValidPublic(dispatch, loginReqId, 'currentLoginReqId');
@@ -63,12 +63,11 @@ export const login = (userName, password, withoutDataBool,shortTimeBool, callbac
             callback();
           }
         }, (shortTimeBool ? loginBeforeSuccessShortTime : loginBeforeSuccessTime));
-      } else if (code === 2) {
-        return Promise.reject('用户名或密码错误。');
+      } else {
+        throw { code };
       }
     })
     .catch(error => {
-      console.log(error);
       if (typeof callbackForError === 'function') {
         callbackForError(error);
       }
@@ -134,6 +133,7 @@ export const register = (args, callback, callbackForError) =>
         }
       })
       .then(data => {
+        debugger;
         const code = Number(data.code);
         if (code === 1) {
           dispatchIfValid(registerBeforeSuccess());
@@ -143,10 +143,11 @@ export const register = (args, callback, callbackForError) =>
               callback();
             }
           }, registerBeforeSuccessTime);
+        } else {
+          throw { code };
         }
       })
       .catch(error => {
-        console.log(error);
         if (typeof callbackForError === 'function') {
           callbackForError(error);
         }
@@ -194,10 +195,11 @@ export const logout = (callback, callbackForError) => (dispatch, getState) => {
         if (typeof callback === 'function') {
           callback();
         }
+      } else {
+        throw { code };
       }
     })
     .catch(error => {
-      console.log(error);
       if (typeof callbackForError === 'function') {
         callbackForError();
       }
@@ -246,10 +248,11 @@ export const verifyEmail = (verifyCode, callback, callbackForError) => (dispatch
             });
           }
         }, verifyEmailSuccessTime);
+      } else {
+        throw { code };
       }
     })
     .catch(error => {
-      console.log(error);
       if (typeof callbackForError === 'function') {
         callbackForError(error);
       }

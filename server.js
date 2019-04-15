@@ -161,7 +161,6 @@ app.post('/api/register', (req, res, next) => {
     if (err) {
       next(err);
     }
-    console.log('userName:'+userName);
     if (userName) {
       res.send(JSON.stringify({ code: 4 }));
     } else {
@@ -183,7 +182,6 @@ app.post('/api/register', (req, res, next) => {
         'verifyCode', verifyCode,
         (err) => {
           if (!err) {
-            console.log('看到这里应该是成了');
             res.send(JSON.stringify({ code: 1 }));
           }
           throw err;

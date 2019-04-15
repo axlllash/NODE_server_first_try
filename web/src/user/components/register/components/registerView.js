@@ -53,6 +53,17 @@ class RegisterView extends Component {
           this.props.toggleView();
         },
         (error) => {
+          if(error.code){
+            //到这里，即为服务器端传来的信息或错误
+            switch (error.code) {
+              //信息不完整，非法修改造成的
+              case 3:
+                error='非法操作'
+                break;
+              default:
+                break;
+            }
+          }
           this.showError(error);
           //恢复点击
           this.setState({

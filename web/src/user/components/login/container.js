@@ -50,6 +50,19 @@ class Login extends Component {
           this.props.changeToNoneViewStatus();
         },
         (error) => {
+          if(error.code){
+            switch(error.code){
+              case '2':
+                error='用户名或密码错误';
+                //这里以后可以添加一个自动focus
+                break;
+              case '3':
+                error='非法错误';
+                break;
+              default:
+                break;
+            }
+          }
           //失败的回调函数
           this.showError(error);
           //恢复点击

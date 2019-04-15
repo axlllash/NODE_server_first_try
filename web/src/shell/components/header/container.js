@@ -3,7 +3,8 @@ import { connect } from 'react-redux';
 
 import User from '../../../user';
 // 因为循环引用产生的bug，故引入action而不是user
-import {login} from '../../../user/actions';
+import { login } from '../../../user/actions';
+import Menu from '../../../menu';
 
 import * as actionCreators from './actions';
 
@@ -24,28 +25,26 @@ class Header extends Component {
     return (
       <header className="header">
         <User viewStatus={this.props.viewStatus} />
-        {/*暂未实现
-        <Menu />
-        */
-        }
+        {/*这里以后写其具体的view*/}
         {
           this.props.userName?
-          [<p key="hello">{`Hello!${this.props.userName}.`}</p>,
-          <div 
-            key="logoutButton"
-            role="logoutButton"
-            onClick={this.props.changeToLogoutViewStatus}>Sign Out
-          </div>]:
-          [<div 
-            key="loginButton"
-            role="loginButton" 
-            onClick={this.props.changeToLoginViewStatus}>Sign In
-          </div>,
-          <div 
-            key="registerButton"
-            role="registerButton" 
-            onClick={this.props.changeToRegisterViewStatus}>Sign Up
-          </div>]
+          {/*而Menu只不过是更方便登录后控制视图的一个模块*/}
+          (<Menu 
+            userName={this.props.userName}
+            changeToLogoutViewStatus={this.props.changeToLogoutViewStatus} 
+          />):
+          (<div className="unloginView">
+            <div 
+              className="loginViewButton"
+              role="loginViewButton" 
+              onClick={this.props.changeToLoginViewStatus}>Sign In
+            </div>
+            <div 
+              className="registerViewButton"
+              role="registerViewButton" 
+              onClick={this.props.changeToRegisterViewStatus}>Sign Up
+            </div>
+          </div>)
         }
       </header>
     );

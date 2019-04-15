@@ -34870,6 +34870,128 @@ _reactDom2.default.render(_react2.default.createElement(
 
 /***/ }),
 
+/***/ "./src/menu/container.js":
+/*!*******************************!*\
+  !*** ./src/menu/container.js ***!
+  \*******************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _getPrototypeOf = __webpack_require__(/*! babel-runtime/core-js/object/get-prototype-of */ "./node_modules/babel-runtime/core-js/object/get-prototype-of.js");
+
+var _getPrototypeOf2 = _interopRequireDefault(_getPrototypeOf);
+
+var _classCallCheck2 = __webpack_require__(/*! babel-runtime/helpers/classCallCheck */ "./node_modules/babel-runtime/helpers/classCallCheck.js");
+
+var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+var _createClass2 = __webpack_require__(/*! babel-runtime/helpers/createClass */ "./node_modules/babel-runtime/helpers/createClass.js");
+
+var _createClass3 = _interopRequireDefault(_createClass2);
+
+var _possibleConstructorReturn2 = __webpack_require__(/*! babel-runtime/helpers/possibleConstructorReturn */ "./node_modules/babel-runtime/helpers/possibleConstructorReturn.js");
+
+var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
+
+var _inherits2 = __webpack_require__(/*! babel-runtime/helpers/inherits */ "./node_modules/babel-runtime/helpers/inherits.js");
+
+var _inherits3 = _interopRequireDefault(_inherits2);
+
+var _react = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+
+var _react2 = _interopRequireDefault(_react);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var Menu = function (_Component) {
+  (0, _inherits3.default)(Menu, _Component);
+
+  function Menu(props) {
+    (0, _classCallCheck3.default)(this, Menu);
+    return (0, _possibleConstructorReturn3.default)(this, (Menu.__proto__ || (0, _getPrototypeOf2.default)(Menu)).call(this, props));
+  }
+
+  (0, _createClass3.default)(Menu, [{
+    key: "render",
+    value: function render() {
+      return _react2.default.createElement(
+        "div",
+        { className: "menuZone" },
+        _react2.default.createElement(
+          "div",
+          { className: "menu" },
+          _react2.default.createElement("div", { className: "clickToChangeApp" }),
+          _react2.default.createElement("div", { className: "clickToFriends" }),
+          _react2.default.createElement("div", { className: "clickToSettings" }),
+          _react2.default.createElement(
+            "div",
+            { className: "clickToLogoutAndClose" },
+            _react2.default.createElement(
+              "div",
+              { className: "clickToLogout" },
+              _react2.default.createElement(
+                "div",
+                {
+                  className: "logoutViewButton",
+                  role: "logoutViewButton",
+                  onClick: this.props.changeToLogoutViewStatus },
+                "Sign In"
+              )
+            ),
+            _react2.default.createElement("div", { className: "clickToClose" })
+          )
+        ),
+        _react2.default.createElement(
+          "div",
+          { className: "showZone" },
+          _react2.default.createElement(
+            "div",
+            { className: "menuUserName" },
+            "this.props.userName"
+          ),
+          _react2.default.createElement("div", { className: "menuAvatar" })
+        )
+      );
+    }
+  }]);
+  return Menu;
+}(_react.Component);
+
+exports.default = Menu;
+
+/***/ }),
+
+/***/ "./src/menu/index.js":
+/*!***************************!*\
+  !*** ./src/menu/index.js ***!
+  \***************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _container = __webpack_require__(/*! ./container */ "./src/menu/container.js");
+
+var _container2 = _interopRequireDefault(_container);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+exports.default = _container2.default;
+
+/***/ }),
+
 /***/ "./src/shell/components/content/index.js":
 /*!***********************************************!*\
   !*** ./src/shell/components/content/index.js ***!
@@ -35078,6 +35200,10 @@ var _user2 = _interopRequireDefault(_user);
 
 var _actions = __webpack_require__(/*! ../../../user/actions */ "./src/user/actions.js");
 
+var _menu = __webpack_require__(/*! ../../../menu */ "./src/menu/index.js");
+
+var _menu2 = _interopRequireDefault(_menu);
+
 var _actions2 = __webpack_require__(/*! ./actions */ "./src/shell/components/header/actions.js");
 
 var actionCreators = _interopRequireWildcard(_actions2);
@@ -35086,7 +35212,6 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-// 因为循环引用产生的bug，故引入action而不是user
 var Header = function (_Component) {
   (0, _inherits3.default)(Header, _Component);
 
@@ -35112,37 +35237,36 @@ var Header = function (_Component) {
         'header',
         { className: 'header' },
         _react2.default.createElement(_user2.default, { viewStatus: this.props.viewStatus }),
-        this.props.userName ? [_react2.default.createElement(
-          'p',
-          { key: 'hello' },
-          'Hello!' + this.props.userName + '.'
-        ), _react2.default.createElement(
+        this.props.userName ? {/*而Menu只不过是更方便登录后控制视图的一个模块*/}(_react2.default.createElement(_menu2.default, {
+          userName: this.props.userName,
+          changeToLogoutViewStatus: this.props.changeToLogoutViewStatus
+        })) : _react2.default.createElement(
           'div',
-          {
-            key: 'logoutButton',
-            role: 'logoutButton',
-            onClick: this.props.changeToLogoutViewStatus },
-          'Sign Out'
-        )] : [_react2.default.createElement(
-          'div',
-          {
-            key: 'loginButton',
-            role: 'loginButton',
-            onClick: this.props.changeToLoginViewStatus },
-          'Sign In'
-        ), _react2.default.createElement(
-          'div',
-          {
-            key: 'registerButton',
-            role: 'registerButton',
-            onClick: this.props.changeToRegisterViewStatus },
-          'Sign Up'
-        )]
+          { className: 'unloginView' },
+          _react2.default.createElement(
+            'div',
+            {
+              className: 'loginViewButton',
+              role: 'loginViewButton',
+              onClick: this.props.changeToLoginViewStatus },
+            'Sign In'
+          ),
+          _react2.default.createElement(
+            'div',
+            {
+              className: 'registerViewButton',
+              role: 'registerViewButton',
+              onClick: this.props.changeToRegisterViewStatus },
+            'Sign Up'
+          )
+        )
       );
     }
   }]);
   return Header;
 }(_react.Component);
+// 因为循环引用产生的bug，故引入action而不是user
+
 
 ;
 
@@ -35540,11 +35664,10 @@ var login = exports.login = function login(userName, password, withoutDataBool, 
             callback();
           }
         }, shortTimeBool ? loginBeforeSuccessShortTime : loginBeforeSuccessTime);
-      } else if (code === 2) {
-        return _promise2.default.reject('用户名或密码错误。');
+      } else {
+        throw { code: code };
       }
     }).catch(function (error) {
-      console.log(error);
       if (typeof callbackForError === 'function') {
         callbackForError(error);
       }
@@ -35616,6 +35739,7 @@ var register = exports.register = function register(args, callback, callbackForE
         return _promise2.default.reject('Something wrong when register');
       }
     }).then(function (data) {
+      debugger;
       var code = Number(data.code);
       if (code === 1) {
         dispatchIfValid(registerBeforeSuccess());
@@ -35625,9 +35749,10 @@ var register = exports.register = function register(args, callback, callbackForE
             callback();
           }
         }, registerBeforeSuccessTime);
+      } else {
+        throw { code: code };
       }
     }).catch(function (error) {
-      console.log(error);
       if (typeof callbackForError === 'function') {
         callbackForError(error);
       }
@@ -35683,9 +35808,10 @@ var logout = exports.logout = function logout(callback, callbackForError) {
         if (typeof callback === 'function') {
           callback();
         }
+      } else {
+        throw { code: code };
       }
     }).catch(function (error) {
-      console.log(error);
       if (typeof callbackForError === 'function') {
         callbackForError();
       }
@@ -35740,9 +35866,10 @@ var verifyEmail = exports.verifyEmail = function verifyEmail(verifyCode, callbac
             });
           }
         }, verifyEmailSuccessTime);
+      } else {
+        throw { code: code };
       }
     }).catch(function (error) {
-      console.log(error);
       if (typeof callbackForError === 'function') {
         callbackForError(error);
       }
@@ -35883,6 +36010,19 @@ var Login = function (_Component) {
           //成功的回调函数
           _this2.props.changeToNoneViewStatus();
         }, function (error) {
+          if (error.code) {
+            switch (error.code) {
+              case '2':
+                error = '用户名或密码错误';
+                //这里以后可以添加一个自动focus
+                break;
+              case '3':
+                error = '非法错误';
+                break;
+              default:
+                break;
+            }
+          }
           //失败的回调函数
           _this2.showError(error);
           //恢复点击
@@ -36306,6 +36446,17 @@ var RegisterView = function (_Component) {
           //如果注册成功，则跳转到验证邮箱页面
           _this2.props.toggleView();
         }, function (error) {
+          if (error.code) {
+            //到这里，即为服务器端传来的信息或错误
+            switch (error.code) {
+              //信息不完整，非法修改造成的
+              case 3:
+                error = '非法操作';
+                break;
+              default:
+                break;
+            }
+          }
           _this2.showError(error);
           //恢复点击
           _this2.setState((0, _extends4.default)({}, _this2.state, {
@@ -36552,6 +36703,16 @@ var VerifyEmailView = function (_Component) {
             }));
           });
         }, function (error) {
+          if (error.code) {
+            switch (error.code) {
+              case 3:
+                error = '非法操作';
+                break;
+              default:
+                // statements_def
+                break;
+            }
+          }
           _this2.showError(error);
           //恢复点击
           _this2.setState((0, _extends4.default)({}, _this2.state, {
