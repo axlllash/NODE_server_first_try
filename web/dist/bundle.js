@@ -36010,7 +36010,6 @@ var Login = function (_Component) {
           //成功的回调函数
           _this2.props.changeToNoneViewStatus();
         }, function (error) {
-          var errorString = void 0;
           if (error.code) {
             switch (error.code) {
               case '2':
@@ -36023,11 +36022,9 @@ var Login = function (_Component) {
               default:
                 break;
             }
-          } else {
-            errorString = error;
           }
           //失败的回调函数
-          _this2.showError(errorString);
+          _this2.showError(error);
           //恢复点击
           _this2.setState((0, _extends4.default)({}, state, {
             loginButtonEnable: true
@@ -36449,21 +36446,21 @@ var RegisterView = function (_Component) {
           //如果注册成功，则跳转到验证邮箱页面
           _this2.props.toggleView();
         }, function (error) {
-          var errorString = void 0;
           if (error.code) {
             //到这里，即为服务器端传来的信息或错误
             switch (error.code) {
               //信息不完整，非法修改造成的
               case 3:
-                errorString = '非法操作';
+                error = '非法操作。';
+                break;
+              case 4:
+                error = '账号已注册。';
                 break;
               default:
                 break;
             }
-          } else {
-            errorString = error;
           }
-          _this2.showError(errorString);
+          _this2.showError(error);
           //恢复点击
           _this2.setState((0, _extends4.default)({}, _this2.state, {
             registerButtonEnable: true
@@ -36709,20 +36706,17 @@ var VerifyEmailView = function (_Component) {
             }));
           });
         }, function (error) {
-          var errorString = void 0;
           if (error.code) {
             switch (error.code) {
               case 3:
-                errorString = '非法操作';
+                error = '非法操作';
                 break;
               default:
                 // statements_def
                 break;
             }
-          } else {
-            errorString = error;
           }
-          _this2.showError(errorString);
+          _this2.showError(error);
           //恢复点击
           _this2.setState((0, _extends4.default)({}, _this2.state, {
             verifyEmailButtonEnable: true

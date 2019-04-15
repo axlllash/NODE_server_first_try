@@ -55,20 +55,17 @@ class VerifyEmailView extends Component {
           );
         },
         (error) => {
-          let errorString;
-          if (error.code) {
+          if(error.code){
             switch (error.code) {
               case 3:
-                errorString = '非法操作';
+                error='非法操作';
                 break;
               default:
                 // statements_def
                 break;
             }
-          } else {
-            errorString = error;
           }
-          this.showError(errorString);
+          this.showError(error);
           //恢复点击
           this.setState({
             ...this.state,

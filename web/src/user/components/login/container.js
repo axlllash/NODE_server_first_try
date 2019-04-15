@@ -50,7 +50,6 @@ class Login extends Component {
           this.props.changeToNoneViewStatus();
         },
         (error) => {
-          let errorString;
           if (error.code) {
             switch (error.code) {
               case '2':
@@ -63,11 +62,9 @@ class Login extends Component {
               default:
                 break;
             }
-          } else {
-            errorString = error;
           }
           //失败的回调函数
-          this.showError(errorString);
+          this.showError(error);
           //恢复点击
           this.setState({
             ...state,

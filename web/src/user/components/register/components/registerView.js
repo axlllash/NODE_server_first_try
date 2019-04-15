@@ -48,26 +48,26 @@ class RegisterView extends Component {
         },
         () => {
           //顺便记录下当前页面的值以移交给下一个页面
-          this.props.logViewData('firstViewData', { userName: this.state.userName, password: this.state.password1 });
+          this.props.logViewData('firstViewData',{ userName: this.state.userName, password: this.state.password1 });
           //如果注册成功，则跳转到验证邮箱页面
           this.props.toggleView();
         },
         (error) => {
-          let errorString;
-          if (error.code) {
+          if(error.code){
             //到这里，即为服务器端传来的信息或错误
             switch (error.code) {
               //信息不完整，非法修改造成的
               case 3:
-                errorString = '非法操作'
+                error='非法操作。'
+                break;
+              case 4:
+                error='账号已注册。'
                 break;
               default:
                 break;
             }
-          } else {
-            errorString = error;
           }
-          this.showError(errorString);
+          this.showError(error);
           //恢复点击
           this.setState({
             ...this.state,
@@ -102,8 +102,8 @@ class RegisterView extends Component {
         {
           if (!this.state.password1) {
             error = '第一次输入的密码不能为空。';
-          } else if (!passwordReg.test(this.state.password1)) {
-            error = '密码由8到16位的密码或数字组成。';
+          }else if(!passwordReg.test(this.state.password1)){
+            error ='密码由8到16位的密码或数字组成。';
           }
           break;
         }
