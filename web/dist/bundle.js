@@ -34796,77 +34796,6 @@ var url = exports.url = {
 
 /***/ }),
 
-/***/ "./src/fake/index.js":
-/*!***************************!*\
-  !*** ./src/fake/index.js ***!
-  \***************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _promise = __webpack_require__(/*! babel-runtime/core-js/promise */ "./node_modules/babel-runtime/core-js/promise.js");
-
-var _promise2 = _interopRequireDefault(_promise);
-
-var _constants = __webpack_require__(/*! ../constants */ "./src/constants.js");
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var fakeFetch = function fakeFetch(url_param, options) {
-  console.dir(options);
-  switch (url_param) {
-    case _constants.url.login:
-      {
-        return _promise2.default.resolve({
-          ok: true,
-          json: function json() {
-            return _promise2.default.resolve({ code: 1, userName: 'weiyu', userData: { email: '123' } });
-          }
-        });
-        // return Promise.reject('wtf is going on!');
-      }
-    case _constants.url.logout:
-      {
-        return _promise2.default.resolve({
-          ok: true,
-          json: function json() {
-            return _promise2.default.resolve({ code: 1 });
-          }
-        });
-      }
-    case _constants.url.register:
-      {
-        return _promise2.default.resolve({
-          ok: true,
-          json: function json() {
-            return _promise2.default.resolve({ code: 1 });
-          }
-        });
-      }
-    case _constants.url.verifyEmail:
-      {
-        return _promise2.default.resolve({
-          ok: true,
-          json: function json() {
-            return _promise2.default.resolve({ code: 1 });
-          }
-        });
-      }
-    default:
-      break;
-  }
-};
-
-exports.default = fakeFetch;
-
-/***/ }),
-
 /***/ "./src/home/index.js":
 /*!***************************!*\
   !*** ./src/home/index.js ***!
@@ -35540,10 +35469,6 @@ var _stringify = __webpack_require__(/*! babel-runtime/core-js/json/stringify */
 
 var _stringify2 = _interopRequireDefault(_stringify);
 
-var _fake = __webpack_require__(/*! ../fake */ "./src/fake/index.js");
-
-var _fake2 = _interopRequireDefault(_fake);
-
 var _constants = __webpack_require__(/*! ../constants */ "./src/constants.js");
 
 var _actionTypes = __webpack_require__(/*! ./actionTypes */ "./src/user/actionTypes.js");
@@ -35555,6 +35480,9 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 //设置三个模块变量，以防止请求竞争
+//测试数据
+// import fetch from '../fake';
+
 var REQ_ID = {
   currentLoginReqId: 0,
   currentRegisterReqId: 0,
@@ -35562,8 +35490,7 @@ var REQ_ID = {
   currentVerifyEmailReqId: 0
 
   //登录界面提示用户登录成功所需要的时间
-}; //测试数据
-var loginBeforeSuccessTime = 2000;
+};var loginBeforeSuccessTime = 2000;
 //首次加载并不需要提示用户成功,注册后自动登录也不需要，所以暂时设为0
 var loginBeforeSuccessShortTime = 0;
 //注册界面提示用户注册成功所需要的时间
@@ -35581,7 +35508,7 @@ var dispatchIfValidPublic = function dispatchIfValidPublic(dispatch, reqId, name
 };
 
 //正常的登录，传递给mapDispatchToProps的
-var login = exports.login = function login(userName, password, withoutDataBool, shortTimeBool, callback, callbackForError) {
+var login = exports.login = function login(userName, password, withDataBool, shortTimeBool, callback, callbackForError) {
   return function (dispatch, getState) {
     var loginReqId = ++REQ_ID.currentLoginReqId;
 
@@ -35591,7 +35518,7 @@ var login = exports.login = function login(userName, password, withoutDataBool, 
     dispatchIfValid(loginStart());
 
     //开始向服务器端申请登录
-    (withoutDataBool ? (0, _fake2.default)(_constants.url.login) : (0, _fake2.default)(_constants.url.login, {
+    (withoutDataBool ? fetch(_constants.url.login) : fetch(_constants.url.login, {
       method: 'post',
       headers: {
         'Content - Type': 'application/json'
@@ -35676,7 +35603,7 @@ var register = exports.register = function register(args, callback, callbackForE
     //开始分发loginStart的action creators
     dispatchIfValid(registerStart());
 
-    (0, _fake2.default)(_constants.url.register, {
+    fetch(_constants.url.register, {
       method: 'post',
       headers: {
         'Content-Type': 'application/json'
@@ -35744,7 +35671,7 @@ var logout = exports.logout = function logout(callback, callbackForError) {
     //开始dispatch注销开始的action
     dispatchIfValid(logoutStart());
 
-    (0, _fake2.default)(_constants.url.logout).then(function (res) {
+    fetch(_constants.url.logout).then(function (res) {
       if (res.ok) {
         return res.json();
       } else {
@@ -35795,7 +35722,7 @@ var verifyEmail = exports.verifyEmail = function verifyEmail(verifyCode, callbac
     //开始dispatch注销开始的action
     dispatchIfValid(verifyEmailStart());
 
-    (0, _fake2.default)(_constants.url.verifyEmail).then(function (res) {
+    fetch(_constants.url.verifyEmail).then(function (res) {
       if (res.ok) {
         return res.json();
       } else {
