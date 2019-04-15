@@ -47,19 +47,19 @@ class Register extends Component {
           <div className="closeButton" onClick={this.props.changeToNoneViewStatus}>x</div>
         </div>
         {this.state.registerViewStatus?
-          <RegisterView 
+          (<RegisterView 
             register={this.props.register}
             registerStatus={this.props.registerStatus}
             toggleView={this.toggleView}
             logViewData={this.logViewData}
-          />:
-          <VerifyEmailView
+          />):
+          (<VerifyEmailView
             firstViewData={this.state.firstViewData}
             changeToNoneViewStatus={this.props.changeToNoneViewStatus}
             login={this.props.login}
             verifyEmail={this.props.verifyEmail}
             verifyEmailStatus={this.props.verifyEmailStatus}
-          />}
+          />)}
       </div>
     );
   }
