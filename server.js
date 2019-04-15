@@ -145,7 +145,10 @@ app.post('/api/register', (req, res, next) => {
     userName = req.body.userName,
     password1 = req.body.password1,
     password2 = req.body.password2,
+    friends = req.body.friends,
     email = req.body.email,
+    avatar = req.body.avatar,
+    customSettings = req.body.customSettings,
     verifyCode;
 
   console.log(req.body);
@@ -171,14 +174,15 @@ app.post('/api/register', (req, res, next) => {
       sendEmail(email, verifyCode);
       //这里不判断userNotVerify:userName的key是否存在了，直接删去
       client.del(`userNotVerify:${req.body.userName}`);
+      console.log(userName,password1,email,friends,avatar,customSettings,verifyCode);
 
       client.hmset(`userNotVerify:${req.body.userName}`,
         'userName', userName,
         'password', password1,
-        'email', req.body.email,
-        'friends', '',
-        'avatar', '',
-        'customSettings', '',
+        'email', email,
+        'friends', friends,
+        'avatar', avatar,
+        'customSettings', customSettings,
         'verifyCode', verifyCode,
         (err) => {
           if (!err) {
