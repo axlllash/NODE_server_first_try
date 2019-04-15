@@ -36437,7 +36437,7 @@ var RegisterView = function (_Component) {
     }
   }]);
   return RegisterView;
-}(Component);
+}(_react.Component);
 
 exports.default = RegisterView;
 
