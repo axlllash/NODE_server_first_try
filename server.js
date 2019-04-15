@@ -46,17 +46,18 @@ app.use(session({
   },
 }));
 
+console.log('server start.');
+
 //配置基础中间件
 app.use(express.static(path.join(__dirname, './web/dist')));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-//配置个人中间件
-app.use((req, res, next) => {
-  console.log('请求url' + req.originalUrl);
-  console.log(req.body);
-  next();
-})
+// //配置个人中间件
+// app.use((req, res, next) => {
+
+//   next();
+// })
 
 // 日志
 app.all("*", async (req, res, next) => {
@@ -147,6 +148,8 @@ app.post('/api/register', (req, res, next) => {
     email = req.body.email,
     verifyCode;
 
+  console.log(req.body);
+
   if (!userName || !password1 || !password2 || password1 !== password2 || !passwordReg.test(password1)) {
     res.send(JSON.stringify({ code: 3 }));
   }
@@ -158,6 +161,7 @@ app.post('/api/register', (req, res, next) => {
     if (err) {
       next(err);
     }
+    console.log('userName:'+userName);
     if (userName) {
       res.send(JSON.stringify({ code: 4 }));
     } else {
@@ -179,6 +183,7 @@ app.post('/api/register', (req, res, next) => {
         'verifyCode', verifyCode,
         (err) => {
           if (!err) {
+            console.log('看到这里应该是成了');
             res.send(JSON.stringify({ code: 1 }));
           }
           throw err;
