@@ -45,7 +45,7 @@ class Register extends Component {
           <p className="viewHeaderText">注册</p>
           <div className="closeButton" onClick={this.props.changeToNoneViewStatus}>x</div>
         </div>
-        {registerViewStatus?
+        {this.state.registerViewStatus?
           <RegisterView 
             register={this.props.register}
             registerStatus={this.props.registerStatus}

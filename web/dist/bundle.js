@@ -36736,7 +36736,7 @@ var Register = function (_Component) {
             'x'
           )
         ),
-        registerViewStatus ? _react2.default.createElement(_registerView2.default, {
+        this.state.registerViewStatus ? _react2.default.createElement(_registerView2.default, {
           register: this.props.register,
           registerStatus: this.props.registerStatus,
           toggleView: this.toggleView,
