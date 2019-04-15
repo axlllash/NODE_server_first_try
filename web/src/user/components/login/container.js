@@ -50,21 +50,24 @@ class Login extends Component {
           this.props.changeToNoneViewStatus();
         },
         (error) => {
-          if(error.code){
-            switch(error.code){
+          let errorString;
+          if (error.code) {
+            switch (error.code) {
               case '2':
-                error='用户名或密码错误';
+                error = '用户名或密码错误';
                 //这里以后可以添加一个自动focus
                 break;
               case '3':
-                error='非法错误';
+                error = '非法错误';
                 break;
               default:
                 break;
             }
+          } else {
+            errorString = error;
           }
           //失败的回调函数
-          this.showError(error);
+          this.showError(errorString);
           //恢复点击
           this.setState({
             ...state,
@@ -79,7 +82,7 @@ class Login extends Component {
 
   handleBlur(e) {
     const name = e.target.name;
-    let err='';
+    let err = '';
     if (!this.state[name]) {
       switch (name) {
         case 'userName':

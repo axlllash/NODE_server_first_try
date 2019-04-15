@@ -133,7 +133,6 @@ export const register = (args, callback, callbackForError) =>
         }
       })
       .then(data => {
-        debugger;
         const code = Number(data.code);
         if (code === 1) {
           dispatchIfValid(registerBeforeSuccess());
