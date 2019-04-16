@@ -44,11 +44,12 @@ class VerifyEmailView extends Component {
               this.props.changeToNoneViewStatus();
             },
             (error) => {
+              debugger;
               //失败的回调函数
               this.showError(error);
               //恢复点击
               this.setState({
-                ...state,
+                ...this.state,
                 verifyEmailButtonEnable: true
               });
             }

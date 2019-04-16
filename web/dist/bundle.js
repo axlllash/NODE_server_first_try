@@ -36721,10 +36721,11 @@ var VerifyEmailView = function (_Component) {
             //成功的回调函数
             _this2.props.changeToNoneViewStatus();
           }, function (error) {
+            debugger;
             //失败的回调函数
             _this2.showError(error);
             //恢复点击
-            _this2.setState((0, _extends4.default)({}, state, {
+            _this2.setState((0, _extends4.default)({}, _this2.state, {
               verifyEmailButtonEnable: true
             }));
           });
