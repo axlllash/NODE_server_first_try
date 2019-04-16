@@ -192,7 +192,7 @@ class RegisterView extends Component {
             }
           />
         </form>
-        <div className="errorZone"></div>
+        <div className="errorZone">{this.state.error}</div>
       </div>
     );
   }

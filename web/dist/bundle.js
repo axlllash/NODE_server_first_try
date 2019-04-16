@@ -36601,7 +36601,11 @@ var RegisterView = function (_Component) {
             value: this.props.registerStatus === status.REGISTER_STATUS_BEFORE_SUCCESS ? '提交成功' : 'Sign Up'
           })
         ),
-        _react2.default.createElement('div', { className: 'errorZone' })
+        _react2.default.createElement(
+          'div',
+          { className: 'errorZone' },
+          this.state.error
+        )
       );
     }
   }]);
@@ -36790,7 +36794,11 @@ var VerifyEmailView = function (_Component) {
             value: this.props.verifyEmailStatus === status.VERIFY_EMAIL_STATUS_BEFORE_SUCCESS ? '注册成功' : '提交'
           })
         ),
-        _react2.default.createElement('div', { className: 'errorZone' })
+        _react2.default.createElement(
+          'div',
+          { className: 'errorZone' },
+          this.state.error
+        )
       );
     }
   }]);
@@ -37288,9 +37296,16 @@ var _extends2 = __webpack_require__(/*! babel-runtime/helpers/extends */ "./node
 
 var _extends3 = _interopRequireDefault(_extends2);
 
+var _typeof2 = __webpack_require__(/*! babel-runtime/helpers/typeof */ "./node_modules/babel-runtime/helpers/typeof.js");
+
+var _typeof3 = _interopRequireDefault(_typeof2);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var showError = exports.showError = function showError(error) {
+  if ((typeof error === 'undefined' ? 'undefined' : (0, _typeof3.default)(error)) === 'object') {
+    error = '未知错误';
+  }
   this.setState((0, _extends3.default)({}, this.state, {
     error: error ? error : ''
   }));

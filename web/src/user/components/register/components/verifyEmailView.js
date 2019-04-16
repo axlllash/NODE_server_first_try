@@ -55,10 +55,10 @@ class VerifyEmailView extends Component {
           );
         },
         (error) => {
-          if(error.code){
+          if (error.code) {
             switch (error.code) {
               case 3:
-                error='非法操作';
+                error = '非法操作';
                 break;
               default:
                 // statements_def
@@ -127,7 +127,7 @@ class VerifyEmailView extends Component {
             }
           />
         </form>
-        <div className="errorZone"></div>
+        <div className="errorZone">{this.state.error}</div>
       </div>
     );
   }

@@ -173,7 +173,6 @@ app.post('/api/register', (req, res, next) => {
       sendEmail(email, verifyCode);
       //这里不判断userNotVerify:userName的key是否存在了，直接删去
       client.del(`userNotVerify:${req.body.userName}`);
-      console.log(userName,password1,email,friends,avatar,customSettings,verifyCode);
 
       client.hmset(`userNotVerify:${req.body.userName}`,
         'userName', userName,
