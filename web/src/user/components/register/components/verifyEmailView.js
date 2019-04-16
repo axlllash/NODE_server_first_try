@@ -95,7 +95,7 @@ class VerifyEmailView extends Component {
         {
           if (!this.state.verifyCode) {
             error = '邮箱验证码不能为空。';
-          } else if (!verifyCodeReg.test(Number(this.state.verifyCode))) {
+          } else if (!verifyCodeReg.test(this.state.verifyCode)) {
             error = '验证码为6位数字';
             break;
           }
