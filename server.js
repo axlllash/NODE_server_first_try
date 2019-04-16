@@ -183,10 +183,10 @@ app.post('/api/register', (req, res, next) => {
         'customSettings', customSettings,
         'verifyCode', verifyCode,
         (err) => {
-          if (!err) {
-            res.send(JSON.stringify({ code: 1 }));
+          if (err) {
+            next(err);
           }
-          throw err;
+          res.send(JSON.stringify({ code: 1 }));
         }
       );
     }
