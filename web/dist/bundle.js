@@ -35651,6 +35651,7 @@ var dispatchIfValidPublic = function dispatchIfValidPublic(dispatch, reqId, name
 //正常的登录，传递给mapDispatchToProps的
 var login = exports.login = function login(userName, password, withoutDataBool, shortTimeBool, callback, callbackForError) {
   return function (dispatch, getState) {
+    debugger;
     var loginReqId = ++REQ_ID.currentLoginReqId;
 
     var dispatchIfValid = dispatchIfValidPublic(dispatch, loginReqId, 'currentLoginReqId');
