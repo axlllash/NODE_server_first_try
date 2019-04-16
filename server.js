@@ -200,6 +200,7 @@ app.post('/api/verifyEmail', (req, res, next) => {
   }
 
   client.hgetall(`userNotVerify:${req.session.tempUserName}`, (err, user) => {
+    console.log(user);
     if (err) {
       next(err);
     } else {
