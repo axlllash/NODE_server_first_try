@@ -36050,7 +36050,7 @@ var Login = function (_Component) {
           //失败的回调函数
           _this2.showError(error);
           //恢复点击
-          _this2.setState((0, _extends4.default)({}, state, {
+          _this2.setState((0, _extends4.default)({}, _this2.state, {
             loginButtonEnable: true
           }));
         });

@@ -67,7 +67,7 @@ class Login extends Component {
           this.showError(error);
           //恢复点击
           this.setState({
-            ...state,
+            ...this.state,
             loginButtonEnable: true
           });
         }
