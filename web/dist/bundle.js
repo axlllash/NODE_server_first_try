@@ -34791,7 +34791,8 @@ Object.defineProperty(exports, "__esModule", {
 var url = exports.url = {
   login: '/api/login',
   logout: '/api/logout',
-  register: '/api/register'
+  register: '/api/register',
+  verifyEmail: '/api/verifyEmail'
 };
 
 /***/ }),
