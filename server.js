@@ -209,7 +209,7 @@ app.post('/api/verifyEmail', (req, res, next) => {
         if (err) {
           next(err);
         } else if (userName) {
-          res.send(JSON.string({ code: 4 }));
+          res.send(JSON.stringify({ code: 4 }));
         } else if (req.body.verifyCode === user.verifyCode) {
           //到这里即已经验证通过
           client.del(`userNotVerify:${req.session.tempUserName}`);
