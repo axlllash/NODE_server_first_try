@@ -227,7 +227,13 @@ export const verifyEmail = (verifyCode, callback, callbackForError) => (dispatch
   //开始dispatch注销开始的action
   dispatchIfValid(verifyEmailStart());
 
-  fetch(url.verifyEmail)
+  fetch(url.verifyEmail, {
+      method: 'post',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ verifyCode })
+    })
     .then(res => {
       if (res.ok) {
         return res.json()

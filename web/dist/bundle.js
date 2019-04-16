@@ -35864,7 +35864,13 @@ var verifyEmail = exports.verifyEmail = function verifyEmail(verifyCode, callbac
     //开始dispatch注销开始的action
     dispatchIfValid(verifyEmailStart());
 
-    fetch(_constants.url.verifyEmail).then(function (res) {
+    fetch(_constants.url.verifyEmail, {
+      method: 'post',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: (0, _stringify2.default)({ verifyCode: verifyCode })
+    }).then(function (res) {
       if (res.ok) {
         return res.json();
       } else {
