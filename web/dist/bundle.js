@@ -37314,6 +37314,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 var showError = exports.showError = function showError(error) {
   if ((typeof error === 'undefined' ? 'undefined' : (0, _typeof3.default)(error)) === 'object') {
+    console.log(error);
     error = '未知错误';
   }
   this.setState((0, _extends3.default)({}, this.state, {
