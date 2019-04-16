@@ -242,7 +242,8 @@ export const verifyEmail = (verifyCode, callback, callbackForError) => (dispatch
       }
     })
     .then(data => {
-      if (Number(data.code) === 1) {
+      const code = Number(data.code);
+      if (code === 1) {
         dispatchIfValid(verifyEmailBeforeSuccess());
         setTimeout(() => {
           dispatchIfValid(verifyEmailSuccess());

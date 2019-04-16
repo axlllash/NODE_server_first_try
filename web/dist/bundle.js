@@ -35877,7 +35877,8 @@ var verifyEmail = exports.verifyEmail = function verifyEmail(verifyCode, callbac
         return _promise2.default.reject('Something wrong when verify email.');
       }
     }).then(function (data) {
-      if (Number(data.code) === 1) {
+      var code = Number(data.code);
+      if (code === 1) {
         dispatchIfValid(verifyEmailBeforeSuccess());
         setTimeout(function () {
           dispatchIfValid(verifyEmailSuccess());
