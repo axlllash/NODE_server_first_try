@@ -35663,7 +35663,7 @@ var login = exports.login = function login(userName, password, withoutDataBool, 
     (withoutDataBool ? fetch(_constants.url.login) : fetch(_constants.url.login, {
       method: 'post',
       headers: {
-        'Content - Type': 'application/json'
+        'Content-Type': 'application/json'
       },
       body: (0, _stringify2.default)({ userName: userName, password: password })
     })).then(function (res) {

@@ -43,7 +43,7 @@ export const login = (userName, password, withoutDataBool, shortTimeBool, callba
   (withoutDataBool ? fetch(url.login) : fetch(url.login, {
     method: 'post',
     headers: {
-      'Content - Type': 'application/json'
+      'Content-Type': 'application/json'
     },
     body: JSON.stringify({ userName, password })
   }))
