@@ -5,10 +5,13 @@ const
   session = require('express-session'),
   redis = require('redis'),
   fs = require('fs'),
+  Server = require('http').Server,
   //配置
   client = redis.createClient({ password: '123456ww' }),
   redisStore = require('connect-redis')(session),
   app = express(),
+  server = Server(app),
+  io = require('socket.io')(server),
   // 自己的模块
   sendEmail = require('./email'),
   log = require('./config/logs'),
@@ -28,25 +31,46 @@ const
   emailReg = /^([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+@([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+\.[a-zA-Z]{2,3}$/,
   passwordReg = /^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{8,16}$/;
 
+//依赖全局参数的配置
+const
+  sessionMiddleware = session({
+    store: new redisStore(sessionOptions),
+    secret: 'zhy2019',
+    resave: true,
+    saveUninitialized: false,
+    // 30分钟
+    cookie: {
+      maxAge: 1000 * 60 * 30,
+      path: '/',
+      secure: false
+    },
+  });
+
 //用于redis提示错误信息
-client.on('error', function(err) {
+client.on('error', (err) => {
   console.log('Error:' + err);
 })
 
-app.use(session({
-  store: new redisStore(sessionOptions),
-  secret: 'zhy2019',
-  resave: true,
-  saveUninitialized: false,
-  // 30分钟
-  cookie: {
-    maxAge: 1000 * 60 * 30,
-    path: '/',
-    secure: false
-  },
-}));
+//使用session中间件
+app.use(sessionMiddleware);
+io.use(function(socket, next) {
+  sessionMiddleware(socket.request, socket.request.res, next);
+});
 
-console.log('server start.');
+//使用socket.io
+io.on('connection', (socket) => {
+  console.log('an user connected');
+  socket.on('test',(data)=>{
+    console.log(data);
+  })
+
+  socket.emit('test','test')
+
+  socket.on('disconnect', () => {
+    console.log('user disconneceted');
+  })
+})
+
 
 //配置基础中间件
 app.use(express.static(path.join(__dirname, './web/dist')));
@@ -96,6 +120,11 @@ app.get('/', (req, res, next) => {
     }
   })
 });
+
+//连接socket.io
+sio.sockets.on('connection', function(socket) {
+  console.log(socket.request.session.username);
+})
 
 //检测是否已经登录
 app.get('/api/login', (req, res, next) => {
@@ -456,4 +485,7 @@ app.delete('/api/friends', (req, res, next) => {
 app.get('*', (req, res, next) => {
   res.redirect('/');
 });
-app.listen(80);
+
+server.listen(80);
+
+console.log('server start.');
