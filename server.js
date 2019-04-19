@@ -60,6 +60,9 @@ io.use(function(socket, next) {
 //使用socket.io
 io.on('connection', (socket) => {
   console.log('an user connected');
+  //连接socket.io
+  console.log('username'+socket.request.session.username);
+
   socket.on('test',(data)=>{
     console.log(data);
   })
@@ -120,11 +123,6 @@ app.get('/', (req, res, next) => {
     }
   })
 });
-
-//连接socket.io
-io.sockets.on('connection', function(socket) {
-  console.log('username'+socket.request.session.username);
-})
 
 //检测是否已经登录
 app.get('/api/login', (req, res, next) => {
