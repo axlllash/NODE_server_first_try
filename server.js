@@ -123,7 +123,7 @@ app.get('/', (req, res, next) => {
 
 //连接socket.io
 io.sockets.on('connection', function(socket) {
-  console.log(socket.request.session.username);
+  console.log('username'+socket.request.session.username);
 })
 
 //检测是否已经登录
