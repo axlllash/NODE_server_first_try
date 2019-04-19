@@ -61,7 +61,7 @@ io.use(function(socket, next) {
 io.on('connection', (socket) => {
   console.log('an user connected');
   //连接socket.io
-  console.log(socket.request.session);
+  console.log(socket.request.session.userName);
 
   socket.on('test',(data)=>{
     console.log(data);
