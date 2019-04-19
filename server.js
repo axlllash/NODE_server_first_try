@@ -122,7 +122,7 @@ app.get('/', (req, res, next) => {
 });
 
 //连接socket.io
-sio.sockets.on('connection', function(socket) {
+io.sockets.on('connection', function(socket) {
   console.log(socket.request.session.username);
 })
 
