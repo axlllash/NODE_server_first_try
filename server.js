@@ -266,7 +266,7 @@ app.post('/api/register', (req, res, next) => {
         'avatar', avatar,
         'customSettings', customSettings,
         'verifyCode', verifyCode,
-        'unreadMessages', '[]'
+        'unreadMessages', '[]',
         (err) => {
           if (err) {
             next(err);
