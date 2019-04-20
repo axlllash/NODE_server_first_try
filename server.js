@@ -57,28 +57,85 @@ io.use(function(socket, next) {
   sessionMiddleware(socket.request, socket.request.res, next);
 });
 
-//使用socket.io
-io.on('connection', (socket) => {
-  console.log('an user connected');
-  //连接socket.io
-  console.log(socket.request.session.userName);
-
-  socket.on('test',(data)=>{
-    console.log(data);
-  })
-
-  socket.emit('test','test')
-
-  socket.on('disconnect', () => {
-    console.log('user disconneceted');
-  })
-})
-
-
 //配置基础中间件
 app.use(express.static(path.join(__dirname, './web/dist')));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
+//使用socket.io
+io.on('connection', (socket) => {
+  if (socket.request.session.userName) {
+    let
+      userName = socket.request.session.userName,
+      id = socket.id;
+    //一旦客户端连入，则保存其id
+    client.hmset('onlineUser',
+      userName, JSON.stringify({ id }),
+      (err) => {
+        if (err) {
+          next(err);
+        }
+      }
+    );
+
+    socket.on('disconnect', () => {
+      client.hdel('onlineUser',
+        userName,
+        (err) => {
+          if (err) {
+            next(err);
+          }
+        });
+    });
+
+    //这里处理客户端发送消息
+    socket.on('whenClientSendMessage', (data) {
+      console.log(data);
+      let
+        userName = data.to,
+        message = data.message;
+      if (!userName || !message) {
+        socket.disconnect(true);
+      } else {
+        client.hgetall(`user:${userName}`, (err, res) => {
+          if (err) {
+            typeof err;
+          }
+          //这里如果为真,则确定不是非法请求
+          if (res) {
+            //先将消息存入未读序列
+            client.hset(`user:${userName}`,
+              'unreadMessages',
+              JSON.parse(res.unreadMessages).push(message),
+              (err, res) => {
+                if (err) {
+                  typeof err;
+                }
+              }
+            )
+            //现在开始确认用户是否在线
+            client.hget('onlineUser',userName,(err,{id})=>{
+              if(err){
+                typeof err;
+              }
+              if(id){
+                //说明该客户端在线,告诉该客户端共有几条未读消息
+                socket.to(id).emit({code:1,amount:res.unreadMessages.length+1})
+              }
+            })
+          } else {
+            socket.disconnect(true);
+          }
+        })
+      }
+    })
+
+    socket.on('test',(data){
+      console.log(data);
+    })
+  };
+
+})
 
 // //配置个人中间件
 // app.use((req, res, next) => {
@@ -209,6 +266,7 @@ app.post('/api/register', (req, res, next) => {
         'avatar', avatar,
         'customSettings', customSettings,
         'verifyCode', verifyCode,
+        'unreadMessages', '[]'
         (err) => {
           if (err) {
             next(err);
@@ -248,6 +306,7 @@ app.post('/api/verifyEmail', (req, res, next) => {
             'friends', user.frineds,
             'avatar', user.avatar,
             'customSettings', user.customSettings,
+            'unreadMessages', user.unreadMessages,
             (err) => {
               if (!err) {
                 res.send(JSON.stringify({ code: 1 }));

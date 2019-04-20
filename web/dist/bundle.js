@@ -45794,7 +45794,7 @@ var Login = function (_Component) {
             socket.on('test', function (data) {
               console.log(data);
             });
-            socket.emit('test', 'test');
+            socket.emit('test', { test: 'test' });
           });
         }, function (error) {
           if (error.code) {

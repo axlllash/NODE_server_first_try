@@ -59,7 +59,7 @@ class Login extends Component {
             socket.on('test',(data)=>{
               console.log(data);
             });
-            socket.emit('test','test');
+            socket.emit('test',{test:'test'});
           })
         },
         (error) => {
