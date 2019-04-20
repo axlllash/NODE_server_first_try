@@ -89,7 +89,7 @@ io.on('connection', (socket) => {
     });
 
     //这里处理客户端发送消息
-    socket.on('whenClientSendMessage', (data) {
+    socket.on('whenClientSendMessage', (data) => {
       console.log(data);
       let
         userName = data.to,
@@ -114,13 +114,13 @@ io.on('connection', (socket) => {
               }
             )
             //现在开始确认用户是否在线
-            client.hget('onlineUser',userName,(err,{id})=>{
-              if(err){
+            client.hget('onlineUser', userName, (err, { id }) => {
+              if (err) {
                 typeof err;
               }
-              if(id){
+              if (id) {
                 //说明该客户端在线,告诉该客户端共有几条未读消息
-                socket.to(id).emit({code:1,amount:res.unreadMessages.length+1})
+                socket.to(id).emit({ code: 1, amount: res.unreadMessages.length + 1 })
               }
             })
           } else {
@@ -130,7 +130,7 @@ io.on('connection', (socket) => {
       }
     })
 
-    socket.on('test',(data){
+    socket.on('test', (data)=>{
       console.log(data);
     })
   };
