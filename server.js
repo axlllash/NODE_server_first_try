@@ -774,7 +774,7 @@ app.post('/api/addGroupMembers', (req, res, next) => {
                   if (err) {
                     next(err);
                   }
-                  res.send(JSON.stringify(code: 1));
+                  res.send(JSON.stringify({code: 1}));
                 });
               }
             });
