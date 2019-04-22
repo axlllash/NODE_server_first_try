@@ -751,7 +751,7 @@ app.post('/api/addGroupMembers', (req, res, next) => {
       res.send(JSON.stringify({ code: 3 }));
     } else {
       //到这里验证成功
-      client.hset(`group:${groupName}`, 'groupMembers'(err, result) => {
+      client.hset(`group:${groupName}`, 'groupMembers',(err, result) => {
         if (err) {
           next(err);
         }
