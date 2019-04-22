@@ -164,7 +164,7 @@ io.on('connection', (socket) => {
               unreadMessages,
               'unreadMessagesAmountData',
               unreadMessagesAmountData,
-              unreadMessagesAmountData(err, res) => {
+              (err, res) => {
                 if (err) {
                   typeof err;
                 }
