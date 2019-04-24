@@ -83,28 +83,24 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // 日志
-app_all('*')
-  .then(async (req, res, next) => {
-    console.log(req,res,next);
-    const start = new Date();
-    //响应间隔时间
-    let ms;
-    try {
-      //开始进入到下一个中间件
-      await next();
-      ms = new Date() - start;
-      //记录响应日志
-      log.i(req, ms);
-    } catch (error) {
-      //记录异常日志
-      ms = new Date() - start;
-      log.e(req, error, ms);
-    }
-    console.log(`${req.method} ${req.url} - ${ms}ms-${res.statusCode}`);
-  })
-  .catch(err => {
-    throw err;
-  })
+app.all("*", async (req, res, next) => {
+  //响应开始时间
+  const start = new Date();
+  //响应间隔时间
+  let ms;
+  try {
+    //开始进入到下一个中间件
+    await next();
+    ms = new Date() - start;
+    //记录响应日志
+    log.i(req, ms);
+  } catch (error) {
+    //记录异常日志
+    ms = new Date() - start;
+    log.e(req, error, ms);
+  }
+  console.log(`${req.method} ${req.url} - ${ms}ms-${res.statusCode}`);
+});
 
 
 //使用socket.io
