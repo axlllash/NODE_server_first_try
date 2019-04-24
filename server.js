@@ -114,7 +114,7 @@ io_on('connection')
     if (socket.request.session.userName) {
       const
         //将socket的几个方法promisify化
-        socket_once = promiseify(sokcet.once, socket, false),
+        socket_once = promisify(sokcet.once, socket, false),
         socket_on = promisify(socket.on, socket, false),
         socket_join = promiseify(socket_join, socket, false),
         sokcet_emit = promiseify(socket_emit, socket, false);
@@ -122,6 +122,7 @@ io_on('connection')
         userName = socket.request.session.userName,
         id = socket.id,
         err;
+      console.log(userName);
       //一旦客户端连入，则保存其ID,以后还可能保存其他的数据
       [err] = await to(client_hset('onlineUser', userName, JOSN.stringify({ id })));
       if (err) throw err;

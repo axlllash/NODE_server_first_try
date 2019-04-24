@@ -11,7 +11,6 @@ const promisify = (fn, context = null, callbackErr = true, reverse = false) => {
   return function(...args) {
     return new Promise((resolve, reject) => {
       const callback = function(...args) {
-        console.log(args);
         if (!callbackErr) {
           if (args.length === 1) return resolve(args[0]);
           return resolve(args);
