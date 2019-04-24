@@ -164,7 +164,7 @@ io_on('connection')
           //unreadMessagesAmountData是必定存在的，因此不用验证
           [err, unreadMessagesAmountData] = await to(client_hget(`user:${userName}`, 'unreadMessagesAmountData'));
           if (err) throw err;
-          groups.foreach((groupName) => {
+          groups.foreach(async (groupName) => {
             [err, groupMessages[groupName]] = await client_hget(`group:${groupName}`, 'groupMessages');
             if (err) throw err;
             else if (isType(JSON.parse(groupMessages[groupName]))) throw 'invalid operation.';
