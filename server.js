@@ -111,8 +111,8 @@ io_on('connection')
         //将socket的几个方法promisify化
         socket_once = promisify(socket.once, socket, false),
         socket_on = promisify(socket.on, socket, false),
-        socket_join = promiseify(socket.join, socket, false),
-        socket_emit = promiseify(socket.emit, socket, false);
+        socket_join = promisify(socket.join, socket, false),
+        socket_emit = promisify(socket.emit, socket, false);
       let
         userName = socket.request.session.userName,
         id = socket.id,
