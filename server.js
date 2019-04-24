@@ -105,19 +105,14 @@ app.all("*", async (req, res, next) => {
 
 //使用socket.io
 io_on('connection')
-  .then(data => {
-    console.log(data);
-    return data;
-  })
   .then(async (socket) => {
-    console.log(socket);
     if (socket.request.session.userName) {
       const
         //将socket的几个方法promisify化
         socket_once = promisify(sokcet.once, socket, false),
         socket_on = promisify(socket.on, socket, false),
         socket_join = promiseify(socket_join, socket, false),
-        sokcet_emit = promiseify(socket_emit, socket, false);
+        socket_emit = promiseify(socket_emit, socket, false);
       let
         userName = socket.request.session.userName,
         id = socket.id,
