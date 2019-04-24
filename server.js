@@ -106,6 +106,7 @@ app.all("*", async (req, res, next) => {
 //使用socket.io
 io_on('connection')
   .then(async (socket) => {
+    console.log(socket);
     if (socket.request.session.userName) {
       const
         //将socket的几个方法promisify化
