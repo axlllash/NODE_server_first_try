@@ -1,5 +1,6 @@
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
+import io from 'socket.io-client';
 
 import { actionCreators as headerViewActionCreators } from '../../../shell/components/header';
 import { showError } from '../../../util';
@@ -49,6 +50,8 @@ class Login extends Component {
         () => {
           //成功的回调函数
           this.props.changeToNoneViewStatus();
+          io.connect('/');
+          io.emit('server_test','zhy',(name)=>{console.log(name)});
 
         },
         (error) => {

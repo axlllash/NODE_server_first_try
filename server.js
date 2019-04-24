@@ -84,7 +84,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // 日志
 app_all('*')
-  .then(async(req, res, next) => {
+  .then(async (req, res, next) => {
     const start = new Date();
     //响应间隔时间
     let ms;
@@ -279,6 +279,11 @@ io_on('connection')
         .catch((err) => {
           console.log(err);
         });
+      socket_on('server_test')
+        .then(async (data, fn) => {
+          console.log('开始');
+          fn('mylove');
+        })
     }
   })
   .catch(err => {
