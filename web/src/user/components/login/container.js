@@ -1,6 +1,5 @@
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
-import io from 'socket.io-client';
 
 import { actionCreators as headerViewActionCreators } from '../../../shell/components/header';
 import { showError } from '../../../util';
@@ -48,19 +47,9 @@ class Login extends Component {
         false,
         false,
         () => {
-          let 
-            socket;
           //成功的回调函数
           this.props.changeToNoneViewStatus();
 
-          socket=io.connect();
-          socket.on('connect',()=>{
-            console.log('has connected。');
-            socket.on('test',(data)=>{
-              console.log(data);
-            });
-            socket.emit('test',{test:'test'});
-          })
         },
         (error) => {
           if (error.code) {

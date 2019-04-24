@@ -1,0 +1,234 @@
+io.on('connection', (socket) => {
+  //将socket的相关方法promisify化
+  const
+    socket_on = promisify(socket.on, socket),
+    socket_join = promisify(socket.join, socket),
+
+
+    if (socket.request.session.userName) {
+      let
+        userName = socket.request.session.userName,
+        id = socket.id;
+      //一旦客户端连入，则保存其id
+      client.hmset('onlineUser',
+        userName, JSON.stringify({ id }),
+        (err) => {
+          if (err) {
+            throw err;
+          }
+        }
+      );
+
+      //这是开始就要做的一步,上线就加入所有组的room
+      socket.on('server_joinGroupsRooms', ({ groups }) => {
+        if (Object.prototype.toString.call(groups) === '[object Array]' &&
+          groups.length > 0) {
+          socket.join(groups, (err) => {
+            if (err) {
+              typeof err;
+            }
+          });
+        }
+      });
+
+      //断开连接
+      socket.on('disconnect', () => {
+        client.hdel('onlineUser',
+          userName,
+          (err) => {
+            if (err) {
+              throw err;
+            }
+          });
+      });
+
+      //写这个是为了在刚开始的时候能读取未读消息数量
+      //告诉客户端有多少消息未读,主要是方便客户端把io.on可以都放在回调函数里，如果立刻发送，客户端对应的on处理程序可能没加载好
+      socket.on('server_sendMessagesAmount', () => {
+        client.hget(`user:${userName}`, 'unreadMessagesAmountData', (err, unreadMessagesAmountData) => {
+          if (err) {
+            throw err;
+          } else if (unreadMessagesAmountData) {
+            socket.emit('client_receiveMessagesAmount', { unreadMessagesAmountData })
+          } else {
+            socket.disconnect(true);
+          }
+        });
+        // } else if (groupBool && groupName) {
+        //   //所有未读的人能一次查清，但是组只能一个一个查
+        //   client.hget(`group:${userName}`, 'groupMembersUnreadMessagesAmountData', (err, groupMembersUnreadMessagesAmountData) => {
+        //     if (err) {
+        //       throw err;
+        //     } else if (groupMembersUnreadMessagesAmountData) {
+        //       groupMembersUnreadMessagesAmountData = JSON.parse(groupMembersUnreadMessagesAmountData);
+        //       socket.emit('client_receiveMessagesAmount', { groupBool: true, groupName, amount: groupMembersUnreadMessagesAmountData[userName] })
+        //     } else {
+        //       socket.disconnect(true);
+        //     }
+        //   });
+        // }
+      });
+
+
+      //这里处理客户端发送消息,并记录未读消息数量
+      socket.on('server_handleMessageFromClient', (message) => {
+        let
+          userName = message.to,
+          fromWho = message.from,
+          groupBool = message.groupBool,
+          groupName = message.groupName;
+        if (!groupBool) {
+          if (!userName || !fromWho) {
+            socket.disconnect(true);
+          } else {
+            client.hgetall(`user:${userName}`, (err, { unreadMessages, unreadMessagesAmountData }) => {
+              if (err) {
+                typeof err;
+              }
+              //这里如果为真,则确定不是非法请求
+              if (unreadMessages) {
+                //在这里先处理下unreadMessages和unreadMessageAmountData
+                unreadMessages = JSON.parse(unreadMessages).push(message);
+                unreadMessagesAmountData = JSON.parse(unreadMessagesAmountData);
+                if (fromWho in unreadMessagesAmountData) {
+                  unreadMessagesAmountData[fromWho] = ++Number(unreadMessagesAmountData[fromWho]);
+                } else {
+                  unreadMessagesAmountData[fromWho] = 1;
+                }
+
+                //记录完数字后stringify化
+                unreadMessages = JSON.stringify(unreadMessages);
+                unreadMessagesAmountData = JSON.stringify(unreadMessagesAmountData);
+
+                //先将消息存入未读序列
+                client.hmset(`user:${userName}`,
+                  'unreadMessages',
+                  unreadMessages,
+                  'unreadMessagesAmountData',
+                  unreadMessagesAmountData,
+                  (err, res) => {
+                    if (err) {
+                      typeof err;
+                    }
+                  }
+                );
+
+                //现在开始确认用户是否在线
+                client.hget('onlineUser', userName, (err, { id }) => {
+                  if (err) {
+                    typeof err;
+                  }
+                  if (id) {
+                    //只有当该客户端在线,告诉该客户端共有几条未读消息
+                    socket.to(id).emit('client_receiveMessagesAmount', { unreadMessagesAmountData })
+                  }
+                });
+
+              } else {
+                socket.disconnect(true);
+              }
+            });
+          }
+        } else if (groupBool && groupName) {
+          client.hget(`group:${groupName}`, 'groupMessages', (err, groupMessages) => {
+            if (err) {
+              throw err;
+            }
+            if (groupMessages) {
+              let
+                groupMessages = JSON.parse(groupMessages).push(message);
+
+              //这里判断一下长度，只存储五百条信息
+              if (groupMessages.length > 1000) {
+                //当超过1000条消息，只保留后500条
+                groupMessages = groupMessages.slice(-500);
+              }
+
+              //操作完后stringify化
+              groupMessages = JSON.stringify(groupMessages);
+
+              //这里的存储是为了那些不在线的用户，在线则直接发
+              client.hset(`group:${groupName}`, 'groupMessages', groupMessages, (err) => {
+                if (err) {
+                  throw err;
+                }
+                //如果是组，则直接发送消息，
+                //当是普通用户的时候，该处理能让客户端得知所有未收到的消息
+                //而组的话，则没有未读的概念，后端直接发送给当前在线的用户
+                socket.to(groupName).emit('client_receiveNewGroupMessage', { groupBool: true, groupName, message });
+              })
+
+            } else {
+              socket.disconnect(true);
+            }
+          });
+        }
+      });
+
+      //这里发送所有未读完的消息,并清除未读消息数量
+      socket.on('server_sendMessage', ({ friendUserName, groupName }) => {
+        if (friendUserName) {
+          client.hget(`user:${friendUserName}`, 'unreadMessages', (err, unreadMessages) => {
+            if (err) {
+              typeof err;
+            } else if (unreadMessages) {
+              socket.emit('client_receiveMessages', JSON.parse(unreadMessages));
+              //发送后即清空未读消息
+              client.hset(`user:${userName}`,
+                'unreadMessages',
+                '[]',
+                'unreadMessagesAmountData',
+                '{}',
+                (err) => {
+                  if (err) {
+                    typeof err;
+                  }
+                }
+              )
+            } else {
+              socket.disconnect(true)
+            }
+          });
+        } else if (groupName) {
+          client.hgetall(`group:${groupName}`, (err, { groupMessages }) => {
+            if (err) {
+              throw err;
+            } else if (groupMessages) {
+              let
+                groupMessages = JSON.parse(groupMessages);
+
+              socket.emit('client_receiveMessages', { groupBool: true, groupName, groupMessages });
+            } else {
+              socket.disconnect(true);
+            }
+          });
+        } else {
+          socket.disconnect(true);
+        }
+      });
+
+      socket.on('test', (data) => {
+        console.log(data);
+      })
+    };
+
+});
+
+app.all("*", async (req, res, next) => {
+  //响应开始时间
+  const start = new Date();
+  //响应间隔时间
+  let ms;
+  try {
+    //开始进入到下一个中间件
+    await next();
+    ms = new Date() - start;
+    //记录响应日志
+    log.i(req, ms);
+  } catch (error) {
+    //记录异常日志
+    ms = new Date() - start;
+    log.e(req, error, ms);
+  }
+  console.log(`${req.method} ${req.url} - ${ms}ms-${res.statusCode}`);
+});
