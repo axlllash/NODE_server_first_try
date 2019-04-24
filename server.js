@@ -105,6 +105,10 @@ app.all("*", async (req, res, next) => {
 
 //使用socket.io
 io_on('connection')
+  .then(data=>{
+    console.log(data);
+    return data;
+  })
   .then(async (socket) => {
     console.log(socket);
     if (socket.request.session.userName) {
