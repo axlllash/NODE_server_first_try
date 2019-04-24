@@ -84,7 +84,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // 日志
 app_all('*')
-  .then(asymc(req, res, next) => {
+  .then(async(req, res, next) => {
     const start = new Date();
     //响应间隔时间
     let ms;
