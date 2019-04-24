@@ -119,7 +119,7 @@ io_on('connection')
         err;
       console.log(userName);
       //一旦客户端连入，则保存其ID,以后还可能保存其他的数据
-      [err] = await to(client_hset('onlineUser', userName, JOSN.stringify({ id })));
+      [err] = await to(client_hset('onlineUser', userName, JSON.stringify({ id })));
       if (err) throw err;
 
       //断开连接监听
