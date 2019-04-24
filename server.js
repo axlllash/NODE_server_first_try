@@ -109,10 +109,10 @@ io_on('connection')
     if (socket.request.session.userName) {
       const
         //将socket的几个方法promisify化
-        socket_once = promisify(sokcet.once, socket, false),
+        socket_once = promisify(socket.once, socket, false),
         socket_on = promisify(socket.on, socket, false),
-        socket_join = promiseify(socket_join, socket, false),
-        socket_emit = promiseify(socket_emit, socket, false);
+        socket_join = promiseify(socket.join, socket, false),
+        socket_emit = promiseify(socket.emit, socket, false);
       let
         userName = socket.request.session.userName,
         id = socket.id,
