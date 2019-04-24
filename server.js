@@ -47,7 +47,7 @@ const
   client_hmset = promisify(client.hmset, client),
   client_hdel = promisify(client.hdel, client),
   client_exists = promisify(client.exists, client),
-  io_on = promisify(io.on, io);
+  io_on = promisify(io.on, io, false);
 
 
 //依赖全局参数的配置
@@ -105,7 +105,7 @@ app.all("*", async (req, res, next) => {
 
 //使用socket.io
 io_on('connection')
-  .then(data=>{
+  .then(data => {
     console.log(data);
     return data;
   })
