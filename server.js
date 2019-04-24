@@ -206,7 +206,7 @@ io_on('connection')
             toWhoId;
           if (!toWho || !fromWho) throw 'incomplete information.'
           if (!groupBool) {
-            [err, data] = await to(client_hgetall(`user:${toWho}`))；
+            [err, data] = await to(client_hgetall(`user:${toWho}`));
             if (err) throw err;
             if (!data) throw 'invalid operation.';
             //此时可以去除掉toWho字段了
