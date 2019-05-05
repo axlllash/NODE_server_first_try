@@ -141,8 +141,8 @@ io_on('connection')
       socket_once('server_joinGroupsRooms')
         .then(async (fn) => {
           //从数据库读取groups
-          [err, groups] = await to(client_hget(`user:${userName}`, 'groups'));
-          .then(([err, groups]) => [err, JSON.parse(groups)]);
+          [err, groups] = await to(client_hget(`user:${userName}`, 'groups'))
+            .then(([err, groups]) => [err, JSON.parse(groups)]);
           if (err) throw { err, fn };
           if (isType(groups) === 'Array' && groups.length > 0) {
             let
@@ -881,7 +881,7 @@ app_post('/api/addGroupMembers')
       }
     }
   })
-  .reject(err=>console.log(err));
+  .reject(err => console.log(err));
 
 
 
@@ -904,7 +904,7 @@ app_delete('/api/friends')
       }
     }
   })
-  .reject(err=>console.log(err));
+  .reject(err => console.log(err));
 
 //访问不存在的路由的时候返回首页
 app_get('*')
