@@ -979,6 +979,17 @@ module.exports = function(arraybuffer, start, end) {
 
 /***/ }),
 
+/***/ "./node_modules/babel-runtime/core-js/array/from.js":
+/*!**********************************************************!*\
+  !*** ./node_modules/babel-runtime/core-js/array/from.js ***!
+  \**********************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = { "default": __webpack_require__(/*! core-js/library/fn/array/from */ "./node_modules/core-js/library/fn/array/from.js"), __esModule: true };
+
+/***/ }),
+
 /***/ "./node_modules/babel-runtime/core-js/json/stringify.js":
 /*!**************************************************************!*\
   !*** ./node_modules/babel-runtime/core-js/json/stringify.js ***!
@@ -1273,6 +1284,38 @@ exports.default = function (self, call) {
   }
 
   return call && ((typeof call === "undefined" ? "undefined" : (0, _typeof3.default)(call)) === "object" || typeof call === "function") ? call : self;
+};
+
+/***/ }),
+
+/***/ "./node_modules/babel-runtime/helpers/toConsumableArray.js":
+/*!*****************************************************************!*\
+  !*** ./node_modules/babel-runtime/helpers/toConsumableArray.js ***!
+  \*****************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
+
+var _from = __webpack_require__(/*! ../core-js/array/from */ "./node_modules/babel-runtime/core-js/array/from.js");
+
+var _from2 = _interopRequireDefault(_from);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+exports.default = function (arr) {
+  if (Array.isArray(arr)) {
+    for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) {
+      arr2[i] = arr[i];
+    }
+
+    return arr2;
+  } else {
+    return (0, _from2.default)(arr);
+  }
 };
 
 /***/ }),
@@ -3784,6 +3827,20 @@ module.exports = function(a, b){
 
 /***/ }),
 
+/***/ "./node_modules/core-js/library/fn/array/from.js":
+/*!*******************************************************!*\
+  !*** ./node_modules/core-js/library/fn/array/from.js ***!
+  \*******************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+__webpack_require__(/*! ../../modules/es6.string.iterator */ "./node_modules/core-js/library/modules/es6.string.iterator.js");
+__webpack_require__(/*! ../../modules/es6.array.from */ "./node_modules/core-js/library/modules/es6.array.from.js");
+module.exports = __webpack_require__(/*! ../../modules/_core */ "./node_modules/core-js/library/modules/_core.js").Array.from;
+
+
+/***/ }),
+
 /***/ "./node_modules/core-js/library/fn/json/stringify.js":
 /*!***********************************************************!*\
   !*** ./node_modules/core-js/library/fn/json/stringify.js ***!
@@ -4071,6 +4128,26 @@ module.exports = function (it) {
 
 var core = module.exports = { version: '2.6.5' };
 if (typeof __e == 'number') __e = core; // eslint-disable-line no-undef
+
+
+/***/ }),
+
+/***/ "./node_modules/core-js/library/modules/_create-property.js":
+/*!******************************************************************!*\
+  !*** ./node_modules/core-js/library/modules/_create-property.js ***!
+  \******************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var $defineProperty = __webpack_require__(/*! ./_object-dp */ "./node_modules/core-js/library/modules/_object-dp.js");
+var createDesc = __webpack_require__(/*! ./_property-desc */ "./node_modules/core-js/library/modules/_property-desc.js");
+
+module.exports = function (object, index, value) {
+  if (index in object) $defineProperty.f(object, index, createDesc(0, value));
+  else object[index] = value;
+};
 
 
 /***/ }),
@@ -5767,6 +5844,55 @@ module.exports = __webpack_require__(/*! ./_core */ "./node_modules/core-js/libr
     || it['@@iterator']
     || Iterators[classof(it)];
 };
+
+
+/***/ }),
+
+/***/ "./node_modules/core-js/library/modules/es6.array.from.js":
+/*!****************************************************************!*\
+  !*** ./node_modules/core-js/library/modules/es6.array.from.js ***!
+  \****************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var ctx = __webpack_require__(/*! ./_ctx */ "./node_modules/core-js/library/modules/_ctx.js");
+var $export = __webpack_require__(/*! ./_export */ "./node_modules/core-js/library/modules/_export.js");
+var toObject = __webpack_require__(/*! ./_to-object */ "./node_modules/core-js/library/modules/_to-object.js");
+var call = __webpack_require__(/*! ./_iter-call */ "./node_modules/core-js/library/modules/_iter-call.js");
+var isArrayIter = __webpack_require__(/*! ./_is-array-iter */ "./node_modules/core-js/library/modules/_is-array-iter.js");
+var toLength = __webpack_require__(/*! ./_to-length */ "./node_modules/core-js/library/modules/_to-length.js");
+var createProperty = __webpack_require__(/*! ./_create-property */ "./node_modules/core-js/library/modules/_create-property.js");
+var getIterFn = __webpack_require__(/*! ./core.get-iterator-method */ "./node_modules/core-js/library/modules/core.get-iterator-method.js");
+
+$export($export.S + $export.F * !__webpack_require__(/*! ./_iter-detect */ "./node_modules/core-js/library/modules/_iter-detect.js")(function (iter) { Array.from(iter); }), 'Array', {
+  // 22.1.2.1 Array.from(arrayLike, mapfn = undefined, thisArg = undefined)
+  from: function from(arrayLike /* , mapfn = undefined, thisArg = undefined */) {
+    var O = toObject(arrayLike);
+    var C = typeof this == 'function' ? this : Array;
+    var aLen = arguments.length;
+    var mapfn = aLen > 1 ? arguments[1] : undefined;
+    var mapping = mapfn !== undefined;
+    var index = 0;
+    var iterFn = getIterFn(O);
+    var length, result, step, iterator;
+    if (mapping) mapfn = ctx(mapfn, aLen > 2 ? arguments[2] : undefined, 2);
+    // if object isn't iterable or it's array with default iterator - use simple case
+    if (iterFn != undefined && !(C == Array && isArrayIter(iterFn))) {
+      for (iterator = iterFn.call(O), result = new C(); !(step = iterator.next()).done; index++) {
+        createProperty(result, index, mapping ? call(iterator, mapfn, [step.value, index], true) : step.value);
+      }
+    } else {
+      length = toLength(O.length);
+      for (result = new C(length); length > index; index++) {
+        createProperty(result, index, mapping ? mapfn(O[index], index) : O[index]);
+      }
+    }
+    result.length = index;
+    return result;
+  }
+});
 
 
 /***/ }),
@@ -47057,7 +47183,15 @@ exports.default = function () {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.isType = exports.showError = undefined;
+exports.formatTime = exports.isType = exports.to = exports.promisify = exports.showError = undefined;
+
+var _toConsumableArray2 = __webpack_require__(/*! babel-runtime/helpers/toConsumableArray */ "./node_modules/babel-runtime/helpers/toConsumableArray.js");
+
+var _toConsumableArray3 = _interopRequireDefault(_toConsumableArray2);
+
+var _promise = __webpack_require__(/*! babel-runtime/core-js/promise */ "./node_modules/babel-runtime/core-js/promise.js");
+
+var _promise2 = _interopRequireDefault(_promise);
 
 var _extends2 = __webpack_require__(/*! babel-runtime/helpers/extends */ "./node_modules/babel-runtime/helpers/extends.js");
 
@@ -47077,6 +47211,51 @@ var showError = exports.showError = function showError(error) {
   this.setState((0, _extends3.default)({}, this.state, {
     error: error ? error : ''
   }));
+};
+
+var promisify = exports.promisify = function promisify(fn) {
+  var context = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+  var callbackErr = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
+  var reverse = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
+
+  if ({}.toString.call(fn) !== '[object Function]') throw new TypeError('Only normal function can be promisified');
+  return function () {
+    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    return new _promise2.default(function (resolve, reject) {
+      var callback = function callback() {
+        for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+          args[_key2] = arguments[_key2];
+        }
+
+        if (!callbackErr) {
+          if (args.length === 1) return resolve(args[0]);
+          return resolve(args);
+        }
+        var err = args.shift();
+        var rest = args;
+        if ({}.toString.call(err) !== '[object Bull]') return reject(err);
+        if (rest.length === 1) return resolve(rest[0]);
+        return resolve(rest);
+      };
+      try {
+        if (reverse === true) fn.apply(context, [callback].concat((0, _toConsumableArray3.default)(args)));else fn.apply(context, [].concat((0, _toConsumableArray3.default)(args), [callback]));
+      } catch (err) {
+        reject(err);
+      }
+    });
+  };
+};
+
+//用于处理正常的数据以及捕获错误
+var to = exports.to = function to(promise) {
+  return promise.then(function (data) {
+    return [null, data];
+  }).catch(function (err) {
+    return [err];
+  });
 };
 
 //判断数组还是对象
@@ -47105,11 +47284,34 @@ var isType = exports.isType = function isType(obj) {
     case '[object RegExp]':
       result = 'RegExp';
       break;
+    case '[object Function]':
+      result = 'Function';
+      break;
     default:
       result = 'undefined';
   }
 
   return result;
+};
+
+var formatTime = exports.formatTime = function formatTime(timeStamp) {
+  //shijianchuo是整数，否则要parseInt转换
+  var time = new Date(timeStamp),
+      y = time.getFullYear(),
+      m = time.getMonth() + 1,
+      d = time.getDate(),
+      h = time.getHours(),
+      mm = time.getMinutes(),
+      s = time.getSeconds(),
+      arry = [m, d, h, mm, s];
+
+  arry.forEach(function (item) {
+    if (Number(item) < 10) {
+      return '0' + item;
+    }
+  });
+
+  return y + '-' + arry[0] + '-' + arry[1] + ' ' + arry[2] + ':' + arry[3] + ':' + arry[4];
 };
 
 /***/ }),

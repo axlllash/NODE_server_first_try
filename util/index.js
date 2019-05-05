@@ -17,7 +17,7 @@ const promisify = (fn, context = null, callbackErr = true, reverse = false) => {
         }
         const err = args.shift();
         const rest = args;
-        if ({}.toString.call(err) === '[object Error]') return reject(err);
+        if ({}.toString.call(err) !== '[object Null]') return reject(err);
         if (rest.length === 1) return resolve(rest[0]);
         return resolve(rest);
       };
@@ -65,6 +65,9 @@ const isType = (obj) => {
       break;
     case '[object RegExp]':
       result = 'RegExp';
+      break;
+    case '[object Function]':
+      result = 'Function';
       break;
     default:
       result = 'undefined';

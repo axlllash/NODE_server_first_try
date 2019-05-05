@@ -13,3 +13,10 @@ menu组件分为好友区，切换区，自定义样式区，中间为头像，�
 大后天socket.io
 大大后天前后端实现socket.io
 聊天、用户全部实现
+
+
+接受消息，监听消息，如果是好友消息，调用update函数，先记录未读消息数量，记录在_messages.unreadMessagesAmountData里，然后遍历调用传入未读消息数量的函数组，这时候再检测聊天窗口是否打开，即_messages里的currentUser字段，如果有值，则向服务器申请消息，得到消息后，先存进_messages.friendMessages字段，然后删除一点服务器发来的消息的key，然后直接遍历调用接受新消息的函数组。
+
+如果是群消息，调用updateGroupMessages函数，先计算出未读群消息数量，因为服务器发来的是群消息数组，并记录在unreadGroupMessagesAmount字段下，并遍历调用接受数量的函数数组。接着判断_messages.currentGroup是否有值，有值则先整合groupMessages，然后直接将服务器传来的消息略作处理，然后遍历调用需要部分群消息的函数。
+
+
