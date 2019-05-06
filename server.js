@@ -409,7 +409,7 @@ app_get('/')
 //检测是否已经登录
 app_get('/api/login')
   .then(([req, res, next]) => {
-    if (!req.session || !req.session.userName) {
+    if (!req.session.userName) {
       res.send(JSON.stringify({ code: 0 }));
     } else {
       res.send(JSON.stringify({ code: 1, userName: req.session.userName }));
