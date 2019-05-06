@@ -20,7 +20,6 @@ export const promisify = (fn, context = null, callbackErr = true, reverse = fals
         const err = args.shift();
         const rest = args;
         if ({}.toString.call(err) !== '[object Bull]') return reject(err);
-        if (rest.length === 1) return resolve(rest[0]);
         return resolve(rest);
       };
       try {
