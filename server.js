@@ -168,7 +168,7 @@ io_on('connection')
             [err] = await to(client_set('onlineGroupMembers', onlineGroupMembers));
             if (err) throw { err, fn };
           }
-          //当数组为0的时候，也发送code:1
+          //当数组为0的时候， 也发送code:1
           //客户端传来的回调函数，便于客户端使用await
           fn({ code: 1 });
         })
