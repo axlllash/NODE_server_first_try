@@ -38,7 +38,10 @@ export const to = (promise) => {
   return promise.then(data => {
       return [null, data];
     })
-    .catch(err => [err]);
+    .catch(err => {
+      console.log('这里触发了');
+      return [err];
+    });
 };
 
 //判断数组还是对象
