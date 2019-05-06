@@ -107,7 +107,7 @@ app.all("*", async (req, res, next) => {
 
 //使用socket.io
 io_on('connection')
-  .then(async (socket) => {
+  .then(async ([socket]) => {
     if (socket.request.session.userName) {
       const
         //将socket的几个方法promisify化
@@ -125,7 +125,7 @@ io_on('connection')
 
       //断开连接监听
       socket_on('disconnect')
-        .then(async (fn) => {
+        .then(async ([fn]) => {
           [err] = await client_hdel('onlineUser', userName);
           if (err) throw err;
           //客户端传来的回调函数，便于客户端使用await
@@ -138,10 +138,10 @@ io_on('connection')
 
       //上线即让用户加入所有组的room，这里只监听，因此不用await
       socket_once('server_joinGroupsRooms')
-        .then(async (fn) => {
+        .then(async ([fn]) => {
           //从数据库读取groups
           [err, groups] = await to(client_hget(`user:${userName}`, 'groups'))
-            .then(([err, groups]) => [err, JSON.parse(groups)]);
+            .then(([err, [groups]]) => [err, JSON.parse(groups)]);
           if (err) throw { err, fn };
           if (isType(groups) === 'Array' && groups.length > 0) {
             let
@@ -150,7 +150,7 @@ io_on('connection')
             if (err) throw { err, fn };
 
             [err, onlineGroupMembers] = await to(client_get('onlineGroupMembers'))
-              .then(([err, onlineGroupMembers]) => [err, JSON.parse(onlineGroupMembers)]);
+              .then(([err, [onlineGroupMembers]]) => [err, JSON.parse(onlineGroupMembers)]);
 
             if (!onlineGroupMembers) {
               //如果不存在，则利用temp新建一个存放每个组在线用户的对象
@@ -183,7 +183,7 @@ io_on('connection')
       //而普通好友消息，并不需要发送具体消息，只需要一个驱动，发送自上次登录以来所有未读消息
       //然后客户端自动去申请消息
       socket_once('server_initFriendsMessagesAndGroupsMessages')
-        .then(async (fn) => {
+        .then(async ([fn]) => {
           let
             unreadMessagesAmountData, i,
             groups, groupMessage = {},
@@ -191,13 +191,13 @@ io_on('connection')
             tempData = {};
           //unreadMessagesAmountData是必定存在的，因此不用验证
           [err, { unreadMessagesAmountData, groups }] = await to(client_hgetall(`user:${userName}`))
-            .then(([err, { unreadMessagesAmountData, groups }]) => [err, [JSON.parse(unreadMessagesAmountData), JSON.parse(groups)]]);
+            .then(([err, [{ unreadMessagesAmountData, groups }]]) => [err, [JSON.parse(unreadMessagesAmountData), JSON.parse(groups)]]);
           if (err) throw { err, fn };
 
           //得到的是每个群的所有保存的消息，以及该用户在每个群的未读消息数量,tempData是用于接下来清除的
           await groups.forEach(async (groupName) => {
             [err, [groupMessages[groupName], unreadGroupMessagesAmountData[groupName], tempData[groupName]]] = await client_hgetall(`group:${groupName}`)
-              .then(([err, result]) => [err, JSON.parse(result)])
+              .then(([err, [result]]) => [err, JSON.parse(result)])
               .then(([err, { groupMessages, groupMembersUnreadMessagesAmountData }]) => [err, [groupMessages, groupMembersUnreadMessagesAmountData[userName], groupMembersUnreadMessagesAmountData]]);
             if (err) throw { err, fn };
           });
@@ -218,7 +218,7 @@ io_on('connection')
           await groups.forEach(async (groupName) => {
             [err, [groupMessages[groupName], unreadGroupMessagesAmountData[groupName]]] = await client_hset(`group:${groupName}`,
                 groupName, tempData[groupName])
-              .then(([err, result]) => [err, JSON.parse(result)])
+              .then(([err, [result]]) => [err, JSON.parse(result)])
               .then(([err, { groupMessages, groupMembersUnreadMessagesAmountData }]) => [err, [groupMessages, groupMembersUnreadMessagesAmountData[userName]]]);
             if (err) throw { err, fn };
           });
@@ -231,7 +231,7 @@ io_on('connection')
 
       //处理客户端发来的消息，既处理普通消息，也处理组的消息
       socket_on('server_handleMessagesFromClient')
-        .then(async (message, fn) => {
+        .then(async ([message, fn]) => {
           let
             toWho = message.to,
             fromWho = message.from,
@@ -243,7 +243,7 @@ io_on('connection')
           if (!groupBool) {
             if (!toWho || !fromWho) throw 'incomplete information.';
             [err, { unreadMessages, unreadMessagesAmountData }] = await to(client_hgetall(`user:${toWho}`))
-              .then(([err, data]) => [err, JSON.parse(data)]);
+              .then(([err, [data]]) => [err, JSON.parse(data)]);
             if (err) throw err;
             //此时可以去除掉toWho字段了
             delete message.to;
@@ -272,7 +272,7 @@ io_on('connection')
               groupMessages;
 
             [err, { groupMessages, groupMembersUnreadMessagesAmountData, groupMembers }] = to(client_hgetall(`group:${groupName}`))
-              .then(([err, result]) => [err, JSON.parse(result)]);
+              .then(([err, [result]]) => [err, JSON.parse(result)]);
             if (err) throw { err, fn };
 
             if (groupMessages) {
@@ -294,7 +294,7 @@ io_on('connection')
 
               //开始获取所有在线的群用户,注意这里获得的是一个群的
               [err, onlineGroupMembers] = await to(client_hgetall('onlineGroupMembers'))
-                .then(([err, allOnlineGroupMembers]) => [err, JSON.parse(allOnlineGroupMembers).groupName]);
+                .then(([err, [allOnlineGroupMembers]]) => [err, JSON.parse(allOnlineGroupMembers).groupName]);
               if (err) throw { err, fn };
 
               //在线的人未读消息数量直接清零
@@ -334,13 +334,13 @@ io_on('connection')
 
       //发送消息，响应客户端的emit，但是用不着发组消息，只针对来自朋友的消息
       socket_on('server_sendMessages')
-        .then(async (friendUserName, fn) => {
+        .then(async ([friendUserName, fn]) => {
           let
             unreadMessages, tempData1, tempData2,
             bool;
 
           [err, [unreadMessages, tempData1, tempData2]] = await to(client_hgetall(`user:${userName}`))
-            .then(([err, data]) => [err, JSON.parse(data)])
+            .then(([err, [data]]) => [err, JSON.parse(data)])
             .then(([err, { unreadMessages, unreadMessagesAmountData, frineds }]) => {
               if (friendUserName in friends) {
                 return [err, [unreadMessages[friendUserName], unreadMessages, unreadMessagesAmountData]]
@@ -374,7 +374,7 @@ io_on('connection')
 
       //测试用
       socket_on('server_test')
-        .then(async (data, fn) => {
+        .then(async ([data, fn]) => {
           console.log('开始');
           fn('mylove');
         })
@@ -389,7 +389,7 @@ io_on('connection')
 // })
 
 app_get('/')
-  .then((req, res, next) => {
+  .then(([req, res, next]) => {
     let
       options = {
         root: __dirname + '/web/dist/',
@@ -408,9 +408,8 @@ app_get('/')
 
 //检测是否已经登录
 app_get('/api/login')
-  .then((...args) => {
-    console.log(args.length);
-    if (!req.session||!req.session.userName) {
+  .then(([req, res, next]) => {
+    if (!req.session || !req.session.userName) {
       res.send(JSON.stringify({ code: 0 }));
     } else {
       res.send(JSON.stringify({ code: 1, userName: req.session.userName }));
@@ -420,11 +419,12 @@ app_get('/api/login')
 
 //登录
 app_post('/api/login')
-  .then(async (req, res, next) => {
+  .then(async ([req, res, next]) => {
     let
       err, user;
     if (req.body.userName && req.body.password && !req.session.userName) {
-      [err, user] = await to(client_hgetall(`user:${req.body.userName}`));
+      [err, user] = await to(client_hgetall(`user:${req.body.userName}`))
+        .then(([err, [user]]) => [err, JSON.parse(user)]);
       if (err) next(err);
       else if (user) {
         if (req.body.password === user.password) {
@@ -450,7 +450,7 @@ app_post('/api/login')
 
 //注销
 app_get('/api/logout')
-  .then((req, res, next) => {
+  .then(([req, res, next]) => {
     if (req.session.userName) {
       req.session.userName = '';
       res.send(JSON.stringify({ code: 1 }));
@@ -462,7 +462,7 @@ app_get('/api/logout')
 
 //先注册，再验证邮箱
 app_post('/api/register')
-  .then(async (req, res, next) => {
+  .then(async ([req, res, next]) => {
     let
       userName = req.body.userName,
       password1 = req.body.password1,
@@ -477,7 +477,8 @@ app_post('/api/register')
     } else if (!emailReg.test(email)) {
       res.send(JSON.stringify({ code: 8 }))
     } else {
-      [err, result] = to(client_hgetall(`user:${userName}`));
+      [err, result] = await to(client_hgetall(`user:${userName}`))
+        .then(([err, [result]]) => [err, JSON.parse(result)]);
 
       if (err) next(err);
       else if (result) {
@@ -515,23 +516,25 @@ app_post('/api/register')
 
 //这里验证邮箱
 app_post('/api/verifyEmail')
-  .then(async (req, res, next) => {
+  .then(async ([req, res, next]) => {
     let err, userName;
     if (!req.body.verifyCode || !req.session.tempUserName || !verifyCodeReg.test(req.body.verifyCode)) {
       res.send(JSON.stringify({ code: 3 }));
     } else {
-      [err, user] = to(client_hgetall(`userNotVerify:${req.session.tempUserName}`));
+      [err, user] = await to(client_hgetall(`userNotVerify:${req.session.tempUserName}`))
+        .then(([err, [user]]) => [err, JSON.parse(user)]);
       if (err) next(err);
       else if (user) {
         //排除非法的直接向该api注册已有账号
-        [err, userName] = to(client_hget(`user:${req.session.tempUserName}`, 'userName'));
+        [err, userName] = await to(client_hget(`user:${req.session.tempUserName}`, 'userName'))
+          .then(([err, [userName]]) => [err, JSON.parse(userName)]);
 
         if (err) next(err);
         else if (userName) {
           res.send(JSON.stringify({ code: 4 }));
         } else if (req.body.verifyCode === user.verifyCode) {
           //到这里即已经验证通过
-          client.del(`userNotVerify:${req.session.tempUserName}`);
+          await client.del(`userNotVerify:${req.session.tempUserName}`);
 
           [err] = await to(client_hmset(`user:${req.session.tempUserName}`,
             'userName', user.userName,
@@ -557,13 +560,14 @@ app_post('/api/verifyEmail')
   .catch(err => console.log(err));
 
 app_get('/api/blog')
-  .then(async (req, res, next) => {
+  .then(async ([req, res, next]) => {
     let
       err, result;
     if (!req.session.userName) {
       res.send(JSON.stringify({ code: 5 }));
     } else {
-      [err, result] = await to(client_hgetall('blog:temp'));
+      [err, result] = await to(client_hgetall('blog:temp'))
+        .then(([err, [result]]) => [err, JSON.parse(result)]);
       if (err) {
         next(err);
       } else if (result) {
@@ -576,7 +580,7 @@ app_get('/api/blog')
   .catch(err => console.log(err));
 
 app_post('/api/blog')
-  .then(async (req, res, next) => {
+  .then(async ([req, res, next]) => {
     let
       title = req.body.title,
       content = req.body.content,
@@ -589,7 +593,8 @@ app_post('/api/blog')
     } else if (!title || !content) {
       res.send(JSON.stringify({ code: 3 }));
     } else {
-      [err, id] = await to(client_incr('blog:ids'));
+      [err, id] = await to(client_incr('blog:ids'))
+        .then(([err, [id]]) => [err, JSON.parse(id)]);
 
       if (!err && id) {
         [err] = await to(client_hmset(`blog:${id}`,
@@ -634,7 +639,7 @@ app_post('/api/blog')
 
 //获取博客
 app_get('/api/blog/:id')
-  .then(async (req, res, next) => {
+  .then(async ([req, res, next]) => {
     let
       id = req.params.id,
       db_result, err, result;
@@ -642,7 +647,8 @@ app_get('/api/blog/:id')
     if (!req.session.userName) {
       res.send(JSON.stringify({ code: 5 }));
     } else {
-      [err, result] = await to(client_hgetall(`blog:${id}`));
+      [err, result] = await to(client_hgetall(`blog:${id}`))
+        .then(([err, [result]]) => [err, JSON.parse(result)]);
 
       if (err) {
         next(err);
@@ -656,7 +662,7 @@ app_get('/api/blog/:id')
   .catch(err => console.log(err));
 
 app_put('/api/blog')
-  .then(async (req, res, next) => {
+  .then(async ([req, res, next]) => {
     let
       title = req.body.title,
       content = req.body.content,
@@ -670,7 +676,8 @@ app_put('/api/blog')
     } else if (!title || !content) {
       res.send(JSON.stringify({ code: 3 }));
     } else {
-      [err, lastEditTime] = to(client_hget(`blog:${id}`, 'date'));
+      [err, lastEditTime] = await to(client_hget(`blog:${id}`, 'date'))
+        .then((err, [lastEditTime]) => [err, lastEditTime]);
 
       if (err) next(err);
 
@@ -715,7 +722,7 @@ app_put('/api/blog')
 
 //删除好友
 app_delete('/api/blog/:id')
-  .then(async (req, res, next) => {
+  .then(async ([req, res, next]) => {
     let
       userName = req.session.userName,
       id = req.params.id;
@@ -733,7 +740,7 @@ app_delete('/api/blog/:id')
 
 //添加好友
 app_post('/api/friends')
-  .then(async (req, res, next) => {
+  .then(async ([req, res, next]) => {
     let
       userName = req.session.userName,
       friendUserName = req.body.friendUserName,
@@ -774,7 +781,7 @@ app_post('/api/friends')
 
 
 app_post('/api/group')
-  .then(async (req, res, next) => {
+  .then(async ([req, res, next]) => {
     let
       userName = req.session.userName,
       groupName = req.body.groupName,
@@ -787,6 +794,7 @@ app_post('/api/group')
     } else {
       //到这里验证成功
       [err, group] = await to(client_hget(`group:${groupName}`))
+        .then(([err, [group]]) => [err, JSON.parse(group)]);
       if (err) next(err);
       else {
         if (group) {
@@ -810,7 +818,7 @@ app_post('/api/group')
 
 //删除组
 app_delete('/api/group')
-  .then(async (req, res, next) => {
+  .then(async ([req, res, next]) => {
     let
       userName = req.session.userName,
       groupName = req.body.userName,
@@ -832,7 +840,7 @@ app_delete('/api/group')
   .catch(err => console.log(err));
 
 app_post('/api/addGroupMembers')
-  .then(async (req, res, next) => {
+  .then(async ([req, res, next]) => {
     let
       userName = req.session.userName,
       groupName = req.body.userName,
@@ -845,14 +853,14 @@ app_post('/api/addGroupMembers')
     } else {
       //到这里验证成功
       [err, groupMembers] = await to(client_hget(`group:${groupName}`, 'groupMembers'))
-        .then(([err, groupMembers]) => [err, JSON.parse(groupMembers)]);
+        .then(([err, [groupMembers]]) => [err, JSON.parse(groupMembers)]);
       if (err) next(err);
       else if (groupMembers) {
         if (newMemberName in groupMembers) {
           res.send(JSON.stringify({ code: 4 }));
         } else {
           [err, groups] = await to(client_hget(`user:${newMemberName}`, 'groups'))
-            .then(([err, groups]) => [err, JSON.parse(groups)]);
+            .then(([err, [groups]]) => [err, JSON.parse(groups)]);
           if (err) {
             next(err);
           } else if (groups) {
@@ -880,7 +888,7 @@ app_post('/api/addGroupMembers')
 
 //删除好友
 app_delete('/api/friends')
-  .then(async (req, res, next) => {
+  .then(async ([req, res, next]) => {
     let
       userName = req.session.userName,
       friendUserName = req.body.userName;
@@ -901,7 +909,7 @@ app_delete('/api/friends')
 
 //访问不存在的路由的时候返回首页
 app_get('*')
-  .then((req, res, next) => {
+  .then(([req, res, next]) => {
     res.redirect('/');
   })
   .catch(err => console.log(err));

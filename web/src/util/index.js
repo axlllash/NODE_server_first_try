@@ -15,13 +15,13 @@ export const promisify = (fn, context = null, callbackErr = true, reverse = fals
     return new Promise((resolve, reject) => {
       const callback = function(...args) {
         if (!callbackErr) {
-          return resolve(...args);
+          return resolve(args);
         }
         const err = args.shift();
         const rest = args;
         if ({}.toString.call(err) !== '[object Bull]') return reject(err);
         if (rest.length === 1) return resolve(rest[0]);
-        return resolve(...rest);
+        return resolve(rest);
       };
       try {
         if (reverse === true) fn.apply(context, [callback, ...args]);

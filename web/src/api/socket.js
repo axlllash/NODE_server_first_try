@@ -31,7 +31,7 @@ export const initSocket = (whenReceiveMessagesAmount, whenReceiveGroupMessages) 
 
       //监听服务器端发来的好友未读消息数量
       sokcet_on('client_receiveMessagesAmount')
-        .then({ unreadMessagesAmountData } => {
+        .then(([{ unreadMessagesAmountData }] )=> {
           if (unreadMessagesAmountData) {
             whenReceiveMessagesAmount(unreadMessagesAmountData);
           } else {
@@ -44,7 +44,7 @@ export const initSocket = (whenReceiveMessagesAmount, whenReceiveGroupMessages) 
 
       //监听服务器发来的新的群组消息
       socket_on('client_receiveMessagesFromGroup')
-        .then({ groupMessages } => {
+        .then(([{ groupMessages }]) => {
           whenReceiveGroupMessages(groupMessages);
         })
         .catch(err => {
@@ -52,12 +52,13 @@ export const initSocket = (whenReceiveMessagesAmount, whenReceiveGroupMessages) 
         })
 
       //初始化所有组，即在线用户对于每个组都加入room,
-      [err, result] = await to(socket_emit('server_joinGroupRooms'));
+      [err, result] = await to(socket_emit('server_joinGroupRooms'))
+        .then(([err,[result]])=>[err,JSON.parse(result)]);
       //在async函数中throw会直接返回rejected的promise，可以在catch里处理
       if (err || Number(result.code) !== 1) throw err ? err : 'something wrong.';
 
       //到这里用户的所有组已经被server监听了,初始化获得friends未读消息数量和所有的群消息
-      [err, { code, unreadMessagesAmountData, groupMessages, unreadGroupMessagesAmountData }] = await to(socket_emit('server_initFriendMessagesAndGroupsMessages'));
+      [err, [{ code, unreadMessagesAmountData, groupMessages, unreadGroupMessagesAmountData }]] = await to(socket_emit('server_initFriendMessagesAndGroupsMessages'));
       if (err || Number(code) !== 1) throw err ? err : 'something wrong.';
 
       return {unreadGroupMessagesAmountData,groupMessages,unreadGroupMessagesAmountData};
