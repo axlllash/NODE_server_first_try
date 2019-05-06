@@ -423,8 +423,8 @@ app_post('/api/login')
     let
       err, user;
     if (req.body.userName && req.body.password && !req.session.userName) {
-      [err, user] = await to(client_hgetall(`user:${req.body.userName}`))
-        .then(([err, [user]]) => [err, JSON.parse(user)]);
+      [err, user] = (await to(client_hgetall(`user:${req.body.userName}`))
+        .then(([err, [user]]) => [err, JSON.parse(user)]));
       if (err) next(err);
       else if (user) {
         if (req.body.password === user.password) {
@@ -477,8 +477,8 @@ app_post('/api/register')
     } else if (!emailReg.test(email)) {
       res.send(JSON.stringify({ code: 8 }))
     } else {
-      [err, result] = await to(client_hgetall(`user:${userName}`))
-        .then(([err, [result]]) => [err, JSON.parse(result)]);
+      [err, result] = await (to(client_hgetall(`user:${userName}`))
+        .then(([err, [result]]) => [err, JSON.parse(result)]));
 
       if (err) next(err);
       else if (result) {
