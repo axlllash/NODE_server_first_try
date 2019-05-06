@@ -410,7 +410,7 @@ app_get('/')
 app_get('/api/login')
   .then((req, res, next) => {
     console.log(req.session);
-    if (!req.session.userName||!req.session) {
+    if (!req.session||!req.session.userName) {
       res.send(JSON.stringify({ code: 0 }));
     } else {
       res.send(JSON.stringify({ code: 1, userName: req.session.userName }));
