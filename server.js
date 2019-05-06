@@ -39,6 +39,7 @@ const
   app_post = promisify(app.post, app, false),
   app_get = promisify(app.get, app, false),
   app_delete = promisify(app.delete, app, false),
+  app_put = promisify(app.put, app, false),
   client_set = promisify(client.set, client),
   client_get = promisify(client.get, client),
   client_on = promisify(client.on, client),
@@ -447,9 +448,7 @@ app_post('/api/login')
     }
   })
   //只有未知错误才会被送到这里
-  .catch(err => {
-    console.log(err);
-  });
+  .catch(err => console.log(err));
 
 //注销
 app_get('/api/logout')
@@ -515,7 +514,6 @@ app_post('/api/register')
     }
   })
   .catch(err => console.log(err));
-});
 
 //这里验证邮箱
 app_post('/api/verifyEmail')
@@ -560,7 +558,6 @@ app_post('/api/verifyEmail')
   })
   .catch(err => console.log(err));
 
-
 app_get('/api/blog')
   .then(async (req, res, next) => {
     let
@@ -577,7 +574,8 @@ app_get('/api/blog')
         res.send(JSON.stringify({ code: 7 }));
       }
     }
-  });
+  })
+  .catch(err => console.log(err));
 
 app_post('/api/blog')
   .then(async (req, res, next) => {
@@ -656,7 +654,8 @@ app_get('/api/blog/:id')
         res.send(JSON.stringify({ code: 7 }));
       }
     }
-  });
+  })
+  .catch(err => console.log(err));
 
 app_put('/api/blog')
   .then(async (req, res, next) => {
@@ -772,7 +771,8 @@ app_post('/api/friends')
         }
       }
     }
-  });
+  })
+  .catch(err => console.log(err));
 
 
 app_post('/api/group')
