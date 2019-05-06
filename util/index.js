@@ -30,7 +30,7 @@ const promisify = (fn, context = null, callbackErr = true, reverse = false) => {
 };
 
 //用于处理正常的数据以及捕获错误
-export const to = (promise) => {
+const to = (promise) => {
   return promise.then(data => {
       return [null, data];
     })
