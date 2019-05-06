@@ -424,7 +424,7 @@ app_post('/api/login')
       err, user;
     if (req.body.userName && req.body.password && !req.session.userName) {
       [err, user] = await to(client_hgetall(`user:${req.body.userName}`))
-        .then((..args)=>{
+        .then((...args)=>{
           console.log(args);
           return args;
         })
