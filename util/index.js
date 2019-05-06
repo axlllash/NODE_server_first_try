@@ -12,7 +12,7 @@ const promisify = (fn, context = null, callbackErr = true, reverse = false) => {
     return new Promise((resolve, reject) => {
       const callback = function(...args) {
         if (!callbackErr) {
-          console.log(...args);
+          console.log(args.length,args[1],args[2]);
           return resolve(...args);
         }
         const err = args.shift();
