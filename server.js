@@ -380,10 +380,7 @@ io_on('connection')
         })
     }
   })
-  .catch(err => {
-    console.log(err);
-  });
-
+  .catch(err => console.log(err));
 
 // //配置个人中间件
 // app.use((req, res, next) => {
@@ -413,7 +410,7 @@ app_get('/')
 app_get('/api/login')
   .then((req, res, next) => {
     console.log(req.session);
-    if (!req.session.userName) {
+    if (!req.session.userName||!req.session) {
       res.send(JSON.stringify({ code: 0 }));
     } else {
       res.send(JSON.stringify({ code: 1, userName: req.session.userName }));
