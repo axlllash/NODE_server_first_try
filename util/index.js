@@ -31,12 +31,9 @@ const promisify = (fn, context = null, callbackErr = true, reverse = false) => {
 
 //用于处理正常的数据以及捕获错误
 const to = (promise) => {
-  return promise.then(data => {
-      console.log('这里data是：',data);
       return [null, data];
     })
     .catch(err => {
-      console.log('这里触发了');
       return [err];
     });
 };
