@@ -439,7 +439,8 @@ app_post('/api/login')
     let
       err, user;
     if (req.body.userName && req.body.password && !req.session.userName) {
-      [err, [user]] = await to(client_exists(`user:${req.body.userName}`));
+      [err, user] = await to(client_hgetall(`user:${req.body.userName}`))
+        .then(([err,[user]])=>[err,JSON.parse(user)]);
       if (err) next(err);
       else if (user) {
         if (req.body.password === user.password) {
@@ -549,7 +550,7 @@ app_post('/api/verifyEmail')
           res.send(JSON.stringify({ code: 4 }));
         } else if (req.body.verifyCode === user.verifyCode) {
           //到这里即已经验证通过
-          await client.del(`userNotVerify:${req.session.tempUserName}`);
+          await client_del(`userNotVerify:${req.session.tempUserName}`);
 
           [err] = await to(client_hmset(`user:${req.session.tempUserName}`,
             'userName', user.userName,
