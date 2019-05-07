@@ -445,6 +445,7 @@ app_post('/api/login')
         .then(([err, [user]]) => [err, JSON.parse(JSON.stringify(user))]);
       if (err) next(err);
       else if (user) {
+        console.log(user);
         if (req.body.password === user.password) {
           req.session.userName = req.body.userName;
           res.send(JSON.stringify({
