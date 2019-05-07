@@ -405,7 +405,7 @@ app_get('/')
       res_senFile = promisify(res.sendFile, res);
 
     res_sendFile('index', options)
-      .catch(err => throw err);
+      .catch(err => console.log(err));
   })
   .catch(err => console.log(err));
 
