@@ -50,6 +50,8 @@ const
   client_hdel = promisify(client.hdel, client),
   client_exists = promisify(client.exists, client),
   client_incr = promisify(client.incr, client),
+  client_del = promisify(client_del, client),
+  client_hdel = promisify(client_hdel, client),
   io_on = promisify(io.on, io, false);
 
 //依赖全局参数的配置
@@ -488,7 +490,8 @@ app_post('/api/register')
       email = req.body.email,
       avatar = req.body.avatar,
       customSettings = req.body.customSettings,
-      verifyCode, err, result;
+      verifyCode, err, result,
+      what;
 
     if (!userName || !password1 || !password2 || password1 !== password2 || !passwordReg.test(password1)) {
       res.send(JSON.stringify({ code: 3 }));
@@ -525,6 +528,9 @@ app_post('/api/register')
         if (err) next(err);
         else {
           //到这里即成功
+          [err, what] = await to(client_exists(`user:${userName}`));
+          console.log(what);
+
           res.send(JSON.stringify({ code: 1 }));
         }
       }
