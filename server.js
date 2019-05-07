@@ -405,7 +405,7 @@ app_get('/')
       res_senFile = promisify(res.sendFile, res);
 
     res_sendFile('index', options)
-      .catch(err => next(err));
+      .catch(err => throw err);
   })
   .catch(err => console.log(err));
 
@@ -417,8 +417,9 @@ app_get('/api/login')
     } else {
       [err, user] = await to(client_hgetall(`user:${req.body.userName}`))
         .then(([err, [user]]) => [err, JSON.parse(JSON.stringify(user))]);
-      if (err) next(err);
-      else if(user){
+      if (err) throw err;
+      else if (user) {
+        console.log('get:/api/login 发送');
         res.send(JSON.stringify({
           code: 1,
           userName: user.userName,
@@ -440,14 +441,16 @@ app_post('/api/login')
   .then(async ([req, res, next]) => {
     let
       err, user;
+    console.log(req.body.userName, req.body.password, req.session.userName);
     if (req.body.userName && req.body.password && !req.session.userName) {
       [err, user] = await to(client_hgetall(`user:${req.body.userName}`))
         .then(([err, [user]]) => [err, JSON.parse(JSON.stringify(user))]);
-      if (err) next(err);
+      if (err) throw err;
       else if (user) {
         console.log(user);
         if (req.body.password === user.password) {
           req.session.userName = req.body.userName;
+          console.log('post:/api/login 发送');
           res.send(JSON.stringify({
             code: 1,
             userName: user.userName,
@@ -501,7 +504,7 @@ app_post('/api/register')
       [err, result] = await to(client_hgetall(`user:${userName}`))
         .then(([err, [result]]) => [err, JSON.parse(JSON.stringify(result))]);
 
-      if (err) next(err);
+      if (err) throw err;
       else if (result) {
         res.send(JSON.stringify({ code: 4 }));
       } else {
@@ -525,10 +528,11 @@ app_post('/api/register')
           'unreadMessages', '[]',
           'unreadMessagesAmountData', '{}'));
 
-        if (err) next(err);
+        if (err) throw err;
         else {
           //到这里即成功
           console.log('ok');
+          console.log('post:/api/register 发送');
           res.send(JSON.stringify({ code: 1 }));
         }
       }
@@ -545,12 +549,12 @@ app_post('/api/verifyEmail')
     } else {
       [err, user] = await to(client_hgetall(`userNotVerify:${req.session.tempUserName}`))
         .then(([err, [user]]) => [err, JSON.parse(JSON.stringify(user))]);
-      if (err) next(err);
+      if (err) throw err;
       else if (user) {
         //排除非法的直接向该api注册已有账号
         [err, [userName]] = await to(client_hget(`user:${req.session.tempUserName}`, 'userName'))
 
-        if (err) next(err);
+        if (err) throw err;
         else if (userName) {
           res.send(JSON.stringify({ code: 4 }));
         } else if (req.body.verifyCode === user.verifyCode) {
@@ -569,7 +573,7 @@ app_post('/api/verifyEmail')
             'unreadMessagesAmountData', user.unreadMessagesAmountData
           ))
 
-          if (err) next(err);
+          if (err) throw err;
           else {
             res.send(JSON.stringify({ code: 1 }));
           }
@@ -591,7 +595,7 @@ app_get('/api/blog')
       [err, result] = await to(client_hgetall('blog:temp'))
         .then(([err, [result]]) => [err, JSON.parse(JSON.stringify(result))]);
       if (err) {
-        next(err);
+        throw err;
       } else if (result) {
         res.send(JSON.stringify({ blogs: result, code: 1 }));
       } else {
@@ -628,7 +632,7 @@ app_post('/api/blog')
           'lastEditTime', date));
 
         if (err) {
-          next(err);
+          throw err;
         } else {
           [err] = to(client_hset('blog:temp',
             id,
@@ -644,7 +648,7 @@ app_post('/api/blog')
           ));
 
           if (err) {
-            next(err);
+            throw err;
           } else {
             res.send(JSON.stringify({ code: 1 }));
           }
@@ -652,7 +656,7 @@ app_post('/api/blog')
       } else if (!err) {
         res.send(JSON.stringify({ code: 7 }));
       } else {
-        next(err);
+        throw err;
       }
     }
   })
@@ -672,7 +676,7 @@ app_get('/api/blog/:id')
         .then(([err, [result]]) => [err, JSON.parse(JSON.stringify(result))]);
 
       if (err) {
-        next(err);
+        throw err;
       } else if (result) {
         res.send(JSON.stringify({ blog: result, code: 1 }));
       } else {
@@ -699,7 +703,7 @@ app_put('/api/blog')
     } else {
       [err, [lastEditTime]] = await to(client_hget(`blog:${id}`, 'date'))
 
-      if (err) next(err);
+      if (err) throw err;
 
       else if (lastEditTime) {
         [err] = await to(client_hmset(`blog:${id}`,
@@ -711,7 +715,7 @@ app_put('/api/blog')
           'date', date,
           'lastEditTime', lastEditTime
         ));
-        if (err) next(err);
+        if (err) throw err;
 
         else {
           [err] = await to(client_hset('blog:temp',
@@ -726,7 +730,7 @@ app_put('/api/blog')
               userName: req.session.userName
             })
           ));
-          if (err) next(err);
+          if (err) throw err;
           else {
             res.send(JSON.stringify({ code: 1 }));
           }
@@ -734,7 +738,7 @@ app_put('/api/blog')
       } else if (!err) {
         res.send(JSON.stringify({ code: 7 }));
       } else {
-        next(err);
+        throw err;
       }
     }
   })
@@ -751,7 +755,7 @@ app_delete('/api/blog/:id')
     } else {
       //到这里验证成功,没必要验证id是否存在，正常操作id肯定存在，非正常操作也无影响
       [err] = await to(client_del(`blog:${id}`));
-      if (err) next(err);
+      if (err) throw err;
       else {
         res.send(JSON.stringify({ code: 1 }));
       }
@@ -772,10 +776,10 @@ app_post('/api/friends')
     } else {
       [err, friendArray] = await to(client_hget(`user:${userName}`, 'friends'))
         .then(([err, friendArray]) => [err, JSON.parse(friendsArray)]);
-      if (err) next(err);
+      if (err) throw err;
       else {
         [err, name] = await to(client_hget(`user:${friendUserName}`, 'userName'));
-        if (err) next(err);
+        if (err) throw err;
         //即好友存在
         else if (name) {
           //到这里验证完成
@@ -789,7 +793,7 @@ app_post('/api/friends')
             'friends',
             JSON.stringify(friendsArray)
           ));
-          if (err) next(err)
+          if (err) throw err
           else {
             res.send(JSON.stringify({ code: 1 }));
           }
@@ -814,7 +818,7 @@ app_post('/api/group')
     } else {
       //到这里验证成功
       [err, [bool]] = await to(client_exists(`group:${groupName}`));
-      if (err) next(err);
+      if (err) throw err;
       else {
         if (bool) {
           res.send(JSON.stringify({ code: 4 }));
@@ -825,7 +829,7 @@ app_post('/api/group')
             'groupData', groupData,
             'groupMessages', '[]',
             'groupMembersUnreadMessagesAmountData', `{${userName}:0}`));
-          if (err) next(err);
+          if (err) throw err;
           else {
             res.send({ code: 1 });
           }
@@ -850,7 +854,7 @@ app_delete('/api/group')
       //到这里验证成功
       [err] = await to(client_del(`user:${groupName}`));
       if (err) {
-        next(err);
+        throw err;
       } else {
         res.send(JSON.stringify({ code: 1 }));
       }
@@ -873,7 +877,7 @@ app_post('/api/addGroupMembers')
       //到这里验证成功
       [err, groupMembers] = await to(client_hget(`group:${groupName}`, 'groupMembers'))
         .then(([err, [groupMembers]]) => [err, JSON.parse(groupMembers)]);
-      if (err) next(err);
+      if (err) throw err;
       else if (groupMembers) {
         if (newMemberName in groupMembers) {
           res.send(JSON.stringify({ code: 4 }));
@@ -881,16 +885,16 @@ app_post('/api/addGroupMembers')
           [err, groups] = await to(client_hget(`user:${newMemberName}`, 'groups'))
             .then(([err, [groups]]) => [err, JSON.parse(groups)]);
           if (err) {
-            next(err);
+            throw err;
           } else if (groups) {
             //到这里验证结束
             groupMembers = groupMembers.push(newMemberName);
             gourps = groups.push(newMemberName);
             [err] = await to(client_hset(`group:${groupName}`, 'groupMembers', JSON.stringify(groupMembers)));
-            if (err) next(err);
+            if (err) throw err;
             else {
               [err] = await to(client_hset(`user:${newMemberName}`, 'groups', JSON.stringify(groups)));
-              if (err) next(err);
+              if (err) throw err;
               else {
                 res.send(JSON.stringify({ code: 1 }));
               }
@@ -918,7 +922,7 @@ app_delete('/api/friends')
     } else {
       //到这里验证成功
       [err] = await to(client_del(`user:${friendUserName}`));
-      if (err) next(err);
+      if (err) throw err;
       else {
         res.send(JSON.stringify({ code: 1 }));
       }
