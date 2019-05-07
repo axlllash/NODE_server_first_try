@@ -51,7 +51,6 @@ const
   client_exists = promisify(client.exists, client),
   client_incr = promisify(client.incr, client),
   client_del = promisify(client_del, client),
-  client_hdel = promisify(client_hdel, client),
   io_on = promisify(io.on, io, false);
 
 //依赖全局参数的配置
