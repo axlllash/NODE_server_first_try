@@ -416,7 +416,7 @@ app_get('/api/login')
       res.send(JSON.stringify({ code: 0 }));
     } else {
       [err, user] = await to(client_hgetall(`user:${req.body.userName}`))
-        .then(([err, [user]]) => [err, JSON.parse(user)]);
+        .then(([err, [user]]) => [err, JSON.parse(JSON.stringify(user))]);
       if (err) next(err);
       else {
         res.send(JSON.stringify({
@@ -442,7 +442,7 @@ app_post('/api/login')
       err, user;
     if (req.body.userName && req.body.password && !req.session.userName) {
       [err, user] = await to(client_hgetall(`user:${req.body.userName}`))
-        .then(([err, [user]]) => [err, JSON.parse(user)]);
+        .then(([err, [user]]) => [err, JSON.parse(JSON.stringify(user))]);
       if (err) next(err);
       else if (user) {
         if (req.body.password === user.password) {
@@ -527,9 +527,6 @@ app_post('/api/register')
         if (err) next(err);
         else {
           //到这里即成功
-          [err, what] = await to(client_exists(`user:${userName}`));
-          console.log(what);
-
           res.send(JSON.stringify({ code: 1 }));
         }
       }
