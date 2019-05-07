@@ -440,6 +440,7 @@ app_get('/api/login')
 //登录
 app_post('/api/login')
   .then(async ([req, res, next]) => {
+    console.log('lets rock and roll')
     let
       err, user;
     console.log(req.body.userName, req.body.password, req.session.userName);
