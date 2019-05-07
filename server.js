@@ -527,6 +527,7 @@ app_post('/api/register')
         if (err) next(err);
         else {
           //到这里即成功
+          console.log('ok');
           res.send(JSON.stringify({ code: 1 }));
         }
       }

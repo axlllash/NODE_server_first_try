@@ -22,7 +22,6 @@ class VerifyEmailView extends Component {
 
   handleSubmit(event) {
     event.preventDefault();
-    debugger;
     if (this.state.verifyCode && this.state.verifyEmailButtonEnable &&
       verifyCodeReg.test(Number(this.state.verifyCode))) {
       //将按钮暂时设为不可点击
@@ -44,7 +43,6 @@ class VerifyEmailView extends Component {
               this.props.changeToNoneViewStatus();
             },
             (error) => {
-              debugger;
               //失败的回调函数
               this.showError(error);
               //恢复点击
