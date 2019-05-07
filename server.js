@@ -419,7 +419,6 @@ app_get('/api/login')
         .then(([err, [user]]) => [err, JSON.parse(JSON.stringify(user))]);
       if (err) next(err);
       else if(user){
-        console.log(user);
         res.send(JSON.stringify({
           code: 1,
           userName: user.userName,
