@@ -35,11 +35,11 @@ const
   emailReg = /^([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+@([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+\.[a-zA-Z]{2,3}$/,
   passwordReg = /^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{8,16}$/,
   //利用promisify来解决回调地狱
-  app_all = promisify(app.all, app, false),
-  app_post = promisify(app.post, app, false),
-  app_get = promisify(app.get, app, false),
-  app_delete = promisify(app.delete, app, false),
-  app_put = promisify(app.put, app, false),
+  // app_all = promisify(app.all, app, false),
+  // app_post = promisify(app.post, app, false),
+  // app_get = promisify(app.get, app, false),
+  // app_delete = promisify(app.delete, app, false),
+  // app_put = promisify(app.put, app, false),
   client_set = promisify(client.set, client),
   client_get = promisify(client.get, client),
   client_on = promisify(client.on, client),
@@ -107,15 +107,15 @@ app.all("*", async (req, res, next) => {
 
 
 //使用socket.io
-io_on('connection')
+io.on('connection', Promise.resolve()
   .then(async ([socket]) => {
     if (socket.request.session.userName) {
-      const
-        //将socket的几个方法promisify化
-        socket_once = promisify(socket.once, socket, false),
-        socket_on = promisify(socket.on, socket, false),
-        socket_join = promisify(socket.join, socket, false),
-        socket_emit = promisify(socket.emit, socket, false);
+      // const
+      //   //将socket的几个方法promisify化
+      //   socket_once = promisify(socket.once, socket, false),
+      //   socket_on = promisify(socket.on, socket, false),
+      //   socket_join = promisify(socket.join, socket, false),
+      //   socket_emit = promisify(socket.emit, socket, false);
       let
         userName = socket.request.session.userName,
         id = socket.id,
@@ -125,7 +125,7 @@ io_on('connection')
       if (err) throw err;
 
       //断开连接监听
-      socket_on('disconnect')
+      socket.on('disconnect', Promise.resolve()
         .then(async ([fn]) => {
           [err] = await client_hdel('onlineUser', userName);
           if (err) throw err;
@@ -137,10 +137,11 @@ io_on('connection')
         .catch(err => {
           console.log(err);
           socket.disconnect(true);
-        });
+        })
+      );
 
       //上线即让用户加入所有组的room，这里只监听，因此不用await
-      socket_once('server_joinGroupsRooms')
+      socket.once('server_joinGroupsRooms', Promise.resolve()
         .then(async ([fn]) => {
           //从数据库读取groups
           [err, groups] = await to(client_hget(`user:${userName}`, 'groups'))
@@ -183,12 +184,13 @@ io_on('connection')
           console.log(err);
           if (fn) fn(err);
           socket.disconnect(true);
-        });
+        })
+      );
 
       //对于客户端初始化的时候，发送所有群消息，后续所有群消息则由服务器端自动发送
       //而普通好友消息，并不需要发送具体消息，只需要一个驱动，发送自上次登录以来所有未读消息
       //然后客户端自动去申请消息
-      socket_once('server_initFriendsMessagesAndGroupsMessages')
+      socket.once('server_initFriendsMessagesAndGroupsMessages', Promise.resolve()
         .then(async ([fn]) => {
           let
             unreadMessagesAmountData, i,
@@ -231,9 +233,10 @@ io_on('connection')
           if (fn) fn(err);
           socket.disconnect(true);
         })
+      );
 
       //处理客户端发来的消息，既处理普通消息，也处理组的消息
-      socket_on('server_handleMessagesFromClient')
+      socket.on('server_handleMessagesFromClient', Promise.resolve()
         .then(async ([message, fn]) => {
           let
             toWho = message.to,
@@ -333,10 +336,11 @@ io_on('connection')
           console.log(err);
           fn(err);
           socket.disconnect(true);
-        });
+        })
+      );
 
       //发送消息，响应客户端的emit，但是用不着发组消息，只针对来自朋友的消息
-      socket_on('server_sendMessages')
+      socket.on('server_sendMessages', Promise.resolve()
         .then(async ([friendUserName, fn]) => {
           let
             unreadMessages, tempData1, tempData2,
@@ -373,17 +377,21 @@ io_on('connection')
           console.log(err);
           fn(err);
           socket.disconnect(true);
-        });
+        })
+      );
 
       //测试用
-      socket_on('server_test')
+      socket.on('server_test', Promise.resolve()
         .then(async ([data, fn]) => {
           console.log('开始');
           fn('mylove');
         })
+        .catch(err => console.log(err))
+      );
     }
   })
-  .catch(err => console.log(err));
+  .catch(err => console.log(err))
+);
 
 // //配置个人中间件
 // app.use((req, res, next) => {
@@ -391,7 +399,7 @@ io_on('connection')
 //   next();
 // })
 
-app_get('/')
+app.get('/', Promise.resolve()
   .then(([req, res, next]) => {
     let
       options = {
@@ -407,17 +415,18 @@ app_get('/')
     res_sendFile('index', options)
       .catch(err => next(err));
   })
-  .catch(err => console.log(err));
+  .catch(err => console.log(err))
+);
 
 //检测是否已经登录
-app_get('/api/login')
+app.get('/api/login', Promise.resolve()
   .then(async ([req, res, next]) => {
     if (!req.session.userName) {
       res.send(JSON.stringify({ code: 0 }));
     } else {
       [err, user] = await to(client_hgetall(`user:${req.body.userName}`))
         .then(([err, [user]]) => [err, JSON.parse(JSON.stringify(user))]);
-      console.log(err,user);
+      console.log(err, user);
       if (err) next(err);
       else if (user) {
         console.log('get:/api/login 发送');
@@ -435,10 +444,11 @@ app_get('/api/login')
       }
     }
   })
-  .catch(err => console.log(err));
+  .catch(err => console.log(err))
+);
 
 //登录
-app_post('/api/login')
+app.post('/api/login', Promise.resolve()
   .then(async ([req, res, next]) => {
     console.log('lets rock and roll')
     let
@@ -471,10 +481,11 @@ app_post('/api/login')
     }
   })
   //只有未知错误才会被送到这里
-  .catch(err => console.log(err));
+  .catch(err => console.log(err))
+);
 
 //注销
-app_get('/api/logout')
+app.get('/api/logout', Promise.resolve()
   .then(([req, res, next]) => {
     if (req.session.userName) {
       req.session.userName = '';
@@ -483,10 +494,11 @@ app_get('/api/logout')
       res.send(JSON.stringify({ code: 0 }));
     }
   })
-  .catch(err => console.log(err));
+  .catch(err => console.log(err))
+);
 
 //先注册，再验证邮箱
-app_post('/api/register')
+app.post('/api/register', Promise.resolve()
   .then(async ([req, res, next]) => {
     let
       userName = req.body.userName,
@@ -540,10 +552,11 @@ app_post('/api/register')
       }
     }
   })
-  .catch(err => console.log(err));
+  .catch(err => console.log(err))
+);
 
 //这里验证邮箱
-app_post('/api/verifyEmail')
+app.post('/api/verifyEmail', Promise.resolve()
   .then(async ([req, res, next]) => {
     let err, userName;
     if (!req.body.verifyCode || !req.session.tempUserName || !verifyCodeReg.test(req.body.verifyCode)) {
@@ -585,9 +598,10 @@ app_post('/api/verifyEmail')
       }
     }
   })
-  .catch(err => console.log(err));
+  .catch(err => console.log(err))
+);
 
-app_get('/api/blog')
+app.get('/api/blog', Promise.resolve()
   .then(async ([req, res, next]) => {
     let
       err, result;
@@ -605,9 +619,10 @@ app_get('/api/blog')
       }
     }
   })
-  .catch(err => console.log(err));
+  .catch(err => console.log(err))
+);
 
-app_post('/api/blog')
+app.post('/api/blog', Promise.resolve()
   .then(async ([req, res, next]) => {
     let
       title = req.body.title,
@@ -662,10 +677,11 @@ app_post('/api/blog')
       }
     }
   })
-  .catch(err => console.log(err));
+  .catch(err => console.log(err))
+);
 
 //获取博客
-app_get('/api/blog/:id')
+app.get('/api/blog/:id', Promise.resolve()
   .then(async ([req, res, next]) => {
     let
       id = req.params.id,
@@ -686,9 +702,10 @@ app_get('/api/blog/:id')
       }
     }
   })
-  .catch(err => console.log(err));
+  .catch(err => console.log(err))
+);
 
-app_put('/api/blog')
+app.put('/api/blog', Promise.resolve()
   .then(async ([req, res, next]) => {
     let
       title = req.body.title,
@@ -744,10 +761,11 @@ app_put('/api/blog')
       }
     }
   })
-  .catch(err => console.log(err));
+  .catch(err => console.log(err))
+);
 
 //删除好友
-app_delete('/api/blog/:id')
+app.delete('/api/blog/:id', Promise.resolve()
   .then(async ([req, res, next]) => {
     let
       userName = req.session.userName,
@@ -763,9 +781,11 @@ app_delete('/api/blog/:id')
       }
     }
   })
+  .catch(err => console.log(err))
+);
 
 //添加好友
-app_post('/api/friends')
+app.post('/api/friends', Promise.resolve()
   .then(async ([req, res, next]) => {
     let
       userName = req.session.userName,
@@ -803,10 +823,11 @@ app_post('/api/friends')
       }
     }
   })
-  .catch(err => console.log(err));
+  .catch(err => console.log(err))
+);
 
 
-app_post('/api/group')
+app.post('/api/group', Promise.resolve()
   .then(async ([req, res, next]) => {
     let
       userName = req.session.userName,
@@ -839,10 +860,11 @@ app_post('/api/group')
       }
     }
   })
-  .catch(err => console.log(err));
+  .catch(err => console.log(err))
+);
 
 //删除组
-app_delete('/api/group')
+app.delete('/api/group', Promise.resolve()
   .then(async ([req, res, next]) => {
     let
       userName = req.session.userName,
@@ -862,9 +884,10 @@ app_delete('/api/group')
       }
     }
   })
-  .catch(err => console.log(err));
+  .catch(err => console.log(err))
+);
 
-app_post('/api/addGroupMembers')
+app.post('/api/addGroupMembers', Promise.resolve()
   .then(async ([req, res, next]) => {
     let
       userName = req.session.userName,
@@ -909,10 +932,11 @@ app_post('/api/addGroupMembers')
       }
     }
   })
-  .catch(err => console.log(err));
+  .catch(err => console.log(err))
+);
 
 //删除好友
-app_delete('/api/friends')
+app.delete('/api/friends', Promise.resolve()
   .then(async ([req, res, next]) => {
     let
       userName = req.session.userName,
@@ -930,14 +954,16 @@ app_delete('/api/friends')
       }
     }
   })
-  .catch(err => console.log(err));
+  .catch(err => console.log(err))
+);
 
 //访问不存在的路由的时候返回首页
-app_get('*')
+app.get('*', Promise.resolve()
   .then(([req, res, next]) => {
     res.redirect('/');
   })
-  .catch(err => console.log(err));
+  .catch(err => console.log(err))
+);
 
 server.listen(80);
 
