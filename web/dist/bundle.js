@@ -36839,7 +36839,6 @@ var VerifyEmailView = function (_Component) {
       var _this2 = this;
 
       event.preventDefault();
-      debugger;
       if (this.state.verifyCode && this.state.verifyEmailButtonEnable && verifyCodeReg.test(Number(this.state.verifyCode))) {
         //将按钮暂时设为不可点击
         this.setState((0, _extends4.default)({}, this.state, {
@@ -36852,7 +36851,6 @@ var VerifyEmailView = function (_Component) {
             //成功的回调函数
             _this2.props.changeToNoneViewStatus();
           }, function (error) {
-            debugger;
             //失败的回调函数
             _this2.showError(error);
             //恢复点击

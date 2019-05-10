@@ -469,7 +469,6 @@ app.post('/api/login', (req, res, next) => {
           .then(([err, [user]]) => [err, JSON.parse(JSON.stringify(user))]);
         if (err) next(err);
         else if (user) {
-          console.log(user);
           if (req.body.password === user.password) {
             req.session.userName = req.body.userName;
             console.log('post:/api/login 发送');
