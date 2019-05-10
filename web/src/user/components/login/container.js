@@ -74,7 +74,7 @@ class Login extends Component {
         }
       );
     } else {
-      this.showError('用户名或密码不能为空。');
+      this.showError('请正确填写信息。');
     }
   };
 

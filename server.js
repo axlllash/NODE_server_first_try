@@ -486,6 +486,8 @@ app.post('/api/login', (req, res, next) => {
           } else {
             res.send(JSON.stringify({ code: 2 }));
           }
+        }else{
+          res.send(JSON.stringify({ code: 2 }));
         }
       }
     })
