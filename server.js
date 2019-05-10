@@ -981,12 +981,12 @@ app.delete('/api/friends', (req, res, next) => {
 });
 
 //访问不存在的路由的时候返回首页
-app.get('*', req, res, next) => {
-Promise.resolve()
-  .then(() => {
-    res.redirect('/');
-  })
-  .catch(err => console.log(err))
+app.get('*', (req, res, next) => {
+  Promise.resolve()
+    .then(() => {
+      res.redirect('/');
+    })
+    .catch(err => console.log(err))
 });
 
 server.listen(80);
